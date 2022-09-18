@@ -1,0 +1,134 @@
+/*
+https://www.spoj.com/problems/MSUBSTR/
+
+MSUBSTR - Mirror Strings !!!
+no tags 
+
+ 
+
+Mirror StringsAs we all know Utkarsh is very good at solving number based problems, this time Arpit thinks smartly and gives Utkarsh to solve a problem on Strings. Arpit gives Utkarsh a string and challenges him to find the length of largest substring that have its mirror string same as its original one and number of such substrings. Now Utkarsh is buzy at preparing Avishkar papers so he asks you to help him in doing this task.Eg.Consider string "lalit" then its mirror string will be "tilal".Input :There are t numbers of test cases (t<=100) followed t lines where each line contains a character string of lower case characters (a-z) of length l (1>=l<=3000).Output :There will be two integers per line separated by space indicating the length of largest substring which have its mirror string same and number of such substrings.Sample test cases :Input :3lalitabedcdetrabcdeOutput :3 15 11 5Time Limit : 1 sec
+     As we all know Utkarsh is very good at solving number based problems, this time Arpit thinks smartly and gives Utkarsh to solve a problem on Strings. Arpit gives Utkarsh a string and challenges him to find the length of largest substring that have its mirror string same as its original one and number of such substrings. Now Utkarsh is buzy at preparing Avishkar papers so he asks you to help him in doing this task.
+
+Eg. for mirror string : Consider string "lalit" then its mirror string will be "tilal".
+
+ 
+
+Input :
+
+There are t numbers of test cases (t<=200) followed t lines where each line contains a character string of lower case characters (a-z) of length l (1>=l<=3000).
+
+ 
+
+Output :
+
+There will be two integers per line separated by space indicating the length of largest substring which have its mirror string same and number of such substrings.
+
+ 
+
+Sample test cases :
+
+Input :
+
+3
+
+lalit
+
+abedcdetr
+
+abcde
+
+ 
+
+Output :
+
+3 1
+
+5 1
+
+1 5
+*/
+
+//MANACHER ALGORITHM
+
+#include <bits/stdc++.h>
+ 
+using namespace std;
+ 
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+ 
+const int maxn = 1e5 + 5;
+ 
+string text;
+int L[maxn];
+ 
+int N, max_len, cant_len;
+ 
+void Manacher()
+{
+    memset(L, 0, sizeof(L));
+ 
+    N = text.size();
+    if(N == 0)
+        return ;
+    N = 2*N + 1; //Position count
+    L[0] = 0;
+    L[1] = 1;
+    int C = 1; //centerPosition
+    int R = 2; //centerRightPosition
+    int i = 0; //currentRightPosition
+    int iMirror; //currentLeftPosition
+    int diff = -1;
+ 
+    for (i = 2; i < N; i++){
+        iMirror  = 2*C-i;
+        L[i] = 0;
+        diff = R - i;
+        if(diff > 0)
+            L[i] = min(L[iMirror], diff);
+ 
+        while ( (i + L[i] < N && (i - L[i]) > 0) &&
+            ( ((i + L[i] + 1) % 2 == 0) ||
+            (text[(i + L[i] + 1)/2] == text[(i - L[i] - 1)/2] )))
+        {
+            L[i]++;
+        }
+ 
+        if (i + L[i] > R)
+        {
+            C = i;
+            R = i + L[i];
+        }
+    }return;
+}
+ 
+ 
+ 
+void count_LPS(){
+    max_len = cant_len = 0;
+ 
+    cik(i, 1, N, 1){
+        if(L[i] > max_len) max_len = L[i], cant_len = 1;
+        else if(L[i] == max_len) cant_len++;
+    }return;
+}
+ 
+int main()
+{
+    ios_base::sync_with_stdio(0); cin.tie(0);
+ 
+//    freopen(".in", "r", stdin);
+ 
+    int T; cin >> T;
+ 
+    cik(t, 1, T, 1){
+        cin >> text;
+ 
+        Manacher();
+ 
+        count_LPS();
+ 
+        cout << max_len << " " << cant_len << "\n";
+    }
+ 
+    return 0;
+} 
