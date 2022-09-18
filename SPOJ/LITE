@@ -1,0 +1,146 @@
+/*
+https://www.spoj.com/problems/LITE/
+
+
+LITE - Light Switching
+#tree
+
+
+Farmer John tries to keep the cows sharp by letting them play with intellectual toys. One of the larger toys is the lights in the barn.  Each of the N (2 <= N <= 100,000) cow stalls conveniently numbered 1..N has a colorful light above it.
+
+At the beginning of the evening, all the lights are off. The cows control the lights with a set of N pushbutton switches that toggle the lights; pushing switch i changes the state of light i from off to on or from on to off.
+
+The cows read and execute a list of M (1 <= M <= 100,000) operations expressed as one of two integers (0 <= operation <= 1).
+
+The first kind of operation (denoted by a 0 command) includes two subsequent integers S_i and E_i (1 <= S_i <= E_i <= N) that indicate a starting switch and ending switch. They execute the operation by pushing each pushbutton from S_i through E_i inclusive exactly once.
+
+The second kind of operation (denoted by a 1 command) asks the cows to count how many lights are on in the range given by two integers S_i and E_i (1 <= S_i <= E_i <= N) which specify the inclusive range in which the cows should count the number of lights that are on.
+
+Help FJ ensure the cows are getting the correct answer by processing the list and producing the proper counts.
+
+Input
+
+Line 1: Two space-separated integers: N and M
+Lines 2..M+1: Each line represents an operation with three space-separated integers: operation, S_i, and E_i
+
+Output
+Lines 1..number of queries: For each output query, print the count as an integer by itself on a single line.
+
+Example
+Input:
+4 5
+0 1 2
+0 2 4
+1 2 3
+0 2 4
+1 1 4
+
+Output:
+1
+2
+
+*/
+
+/*
+#DATA STRUCTURES
+#SEGMENT TREE WITH LAZY PROPAGATION
+*/
+
+//By Forte11
+#include <bits/stdc++.h>
+ 
+using namespace std;
+ 
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+ 
+const int maxn = 1e5 + 5;
+ 
+int SG[maxn * 4];
+bool LZ[maxn * 4];
+int A[maxn];
+ 
+int N, M, a, b;
+ 
+void lazy(int nod, int ini, int fin){
+    if(ini == fin){
+        LZ[nod] = false;
+        return;
+    }
+ 
+    LZ[nod] = false;
+    LZ[nod << 1] = !LZ[nod << 1];
+    LZ[(nod << 1) + 1] = !LZ[(nod << 1) + 1];
+ 
+    int mit = (ini + fin) >> 1;
+ 
+    SG[nod << 1] = mit - ini + 1 - SG[nod << 1];
+    SG[(nod << 1) + 1] = fin - mit - SG[(nod << 1) + 1];
+ 
+    return;
+}
+ 
+void update(int nod, int ini, int fin){
+    if(a > fin || ini > b){
+        return;
+    }
+ 
+    if(LZ[nod]){
+        lazy(nod, ini, fin);
+    }
+ 
+    if(a <= ini && fin <= b){
+        SG[nod] = (fin - ini + 1) - SG[nod];
+        LZ[nod] = !LZ[nod];
+        return;
+    }
+ 
+    int mit = (ini + fin) >> 1;
+ 
+    update(nod << 1, ini, mit);
+    update((nod << 1) + 1, mit + 1, fin);
+ 
+    SG[nod] = SG[nod << 1]  + SG[(nod << 1) + 1];
+    return;
+}
+ 
+int query(int nod, int ini, int fin){
+    if(a > fin || ini > b){
+        return 0;
+    }
+ 
+    if(LZ[nod]){
+        lazy(nod, ini, fin);
+    }
+ 
+    if(a <= ini && fin <= b){
+        return SG[nod];
+    }
+ 
+    int mit = (ini + fin) >> 1;
+ 
+    int q1 = query(nod << 1, ini, mit);
+    int q2 = query((nod << 1) + 1, mit + 1, fin);
+ 
+    return q1 + q2;
+}
+ 
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0); cout.tie(0);
+ 
+    cin >> N >> M;
+ 
+    cik(i, 1, M, 1){
+        int op; cin >> op >> a >> b;
+        if(op){
+            cout << query(1, 1, N) << "\n";
+        }
+        else{
+            update(1, 1, N);
+        }
+    }
+ 
+    return 0;
+}
+ 
