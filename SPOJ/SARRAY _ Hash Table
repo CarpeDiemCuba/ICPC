@@ -1,0 +1,175 @@
+/*
+https://www.spoj.com/problems/SARRAY/
+
+SARRAY - Suffix Array
+no tags 
+
+Given a string of length at most 100,000 consist of alphabets and numbers. Output the suffix array of the string.
+
+A suffix array is an array of integers giving the starting positions (0-based) of suffixes of a string in lexicographical order. Consider a string "abracadabra0AbRa4Cad14abra". The size of the suffix array is equal to the length of the string. Below is the list of 26 suffixes of the string along with its starting position sorted in lexicographical order:
+
+POS SUFFIX
+ 11 0AbRa4Cad14abra
+ 20 14abra
+ 16 4Cad14abra
+ 21 4abra
+ 12 AbRa4Cad14abra
+ 17 Cad14abra
+ 14 Ra4Cad14abra
+ 25 a
+ 10 a0AbRa4Cad14abra
+ 15 a4Cad14abra
+ 22 abra
+  7 abra0AbRa4Cad14abra
+  0 abracadabra0AbRa4Cad14abra
+  3 acadabra0AbRa4Cad14abra
+ 18 ad14abra
+  5 adabra0AbRa4Cad14abra
+ 13 bRa4Cad14abra
+ 23 bra
+  8 bra0AbRa4Cad14abra
+  1 bracadabra0AbRa4Cad14abra
+  4 cadabra0AbRa4Cad14abra
+ 19 d14abra
+  6 dabra0AbRa4Cad14abra
+ 24 ra
+  9 ra0AbRa4Cad14abra
+  2 racadabra0AbRa4Cad14abra
+Note: this is a partial score problem.
+O(n2 log(n)) is expected to score about 20-30. (Naive sorting all suffixes)
+O(n log2(n)) is expected to score about 40. (OK for most programming contest problems)
+O(n log n) is expected to score about 60-70. (Use counting sort for small alphabet size)
+O(n) without tweaks is expected to score about 80-90.
+O(n) with tweaks is expected to score 100. (This is meant for fun only :)
+
+Input
+A single line containing the string.
+
+Output
+The suffix array of the string.
+
+Example
+Input:
+abracadabra0AbRa4Cad14abra
+
+Output:
+11
+20
+16
+21
+12
+17
+14
+25
+10
+15
+22
+7
+0
+3
+18
+5
+13
+23
+8
+1
+4
+19
+6
+24
+9
+2
+
+*/
+
+/*
+STRING 
+Solution with Hash Table and Suffix Array
+
+*/
+#include <bits/stdc++.h>
+ 
+using namespace std;
+ 
+#define ull unsigned long long
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+ 
+const int maxn = 1e6 + 5;
+const ull base = 311;
+ 
+ull TH[maxn];
+ull P[maxn];
+int SA[maxn], LCP[maxn];
+ 
+string A;
+int len;
+ 
+void calc_pot(){
+    P[0] = 1;
+    for(int i = 1; i <= maxn - 5; i++){
+        P[i] = P[i - 1] * base;
+    }
+    return;
+}
+ 
+int bb(int a, int b){
+    int ini = 0, fin = len - max(a, b) - 2;
+    while(fin - ini > 1){
+        int mit = (ini + fin) >> 1;
+        if(TH[a + mit] - TH[a - 1] * P[mit] == TH[b + mit] - TH[b - 1] * P[mit]){
+            ini = mit + 1;
+        }else{
+            fin = mit;
+        }
+    }
+ 
+    while(A[a + ini] == A[b + ini]){
+        ini++;
+    }
+    return ini;
+}
+ 
+int cmp2(int a, int b){
+    int pos = bb(a, b);
+    return pos - 1;
+}
+ 
+bool cmp1(int a, int b){
+    int pos = bb(a, b);
+ 
+    bool flag = A[a + pos] < A[b + pos];
+    return flag;
+}
+ 
+int main()
+{
+	ios_base::sync_with_stdio(0); cin.tie(0);
+ 
+    //freopen(".in", "r", stdin);
+ 
+    calc_pot();
+ 
+    cin >> A;
+ 
+    A = '$' + A + '$';
+ 
+    len = A.size();
+ 
+    for(int i = 1; i < len; i++){
+        TH[i] = TH[i - 1] * base + (ull)(A[i]);
+    }
+    for(int i = 1; i < len; i++){
+        SA[i] = i;
+    }
+ 
+    sort(SA + 1, SA + len, cmp1);
+ 
+ 
+    for(int i = 2; i < len; i++){
+        cout << SA[i] - 1 << "\n";
+    }
+ 
+ 
+    return 0;
+}
+ 
