@@ -1,0 +1,86 @@
+/*
+https://lightoj.com/problem/making-huge-palindromes
+
+Making Huge Palindromes
+
+A string is said to be a palindrome if it remains same when read backwards. So, "abba", "madam" both are palindromes, but "adam" is not.
+
+Now, you are given a non-empty string S, containing only lowercase English letters. The given string may or may not be palindrome. Your task is to make it a palindrome. But you are only allowed to add characters at the right side of the string. And of course, you can add any character you want, but the resulting string has to be a palindrome, and the length of the palindrome should be as small as possible.
+
+For example, the string is "bababa", you can make many palindromes including:
+
+"bababababab"
+"babababab"
+"bababab"
+Since we want a palindrome with minimum length, the solution would be "bababab" cause its length is minimum.
+
+Input
+Input starts with an integer T (≤ 10), denoting the number of test cases.
+
+Each case starts with a line containing a string S. You can assume that 1 ≤ length(S) ≤ 106.
+
+Output
+For each case, print the case number and the length of the shortest palindrome you can make with S.
+
+Sample
+Input	Output
+4
+bababababa
+pqrs
+madamimadam
+anncbaaababaaa
+
+Case 1: 11
+Case 2: 7
+Case 3: 11
+Case 4: 19
+*/
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+
+const int maxn = 2e6 + 5;
+
+int lps[maxn];
+
+string A, B;
+
+void pre_KMP(){
+    int len = 0;
+    cik(i, 1, A.size() - 1, 0){
+        if(A[i] == A[len]){
+            len++;
+            lps[i] = len;
+            i++;
+        }else{
+            if(len) len = lps[len-1];
+            else lps[i] = 0, i++;
+        }
+    }return;
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0); cout.tie(0);
+
+    int T; cin >> T;
+
+    cik(t, 1, T, 1){
+        cin >> A;
+
+        int L = A.size();
+
+        B = A;
+        reverse(A.begin(), A.end()); A += "@" + B;
+        pre_KMP();
+
+        cout << "Case " << t << ": " << L + L - lps[A.size() - 1] << "\n";
+
+        memset(lps, 0, sizeof(lps));
+    }
+    return 0;
+}
