@@ -1,0 +1,104 @@
+/*
+https://www.spoj.com/problems/LPS/
+
+LPS - Longest Palindromic Substring
+no tags 
+
+A palindrome is a string that is the same as its reverse. Example "malayalam", "dad", "appa" etc. In this problem you are asked to find the length of the longest contiguous substring of a given string, which is a palindrome.
+
+ 
+
+Input
+
+The first line consists of a single integer N, the no. of characters in the string. 1 <= N <= 100000.
+
+Second line is a string with N characters, where the characters are always lowercase english alphabets, ie 'a' to 'z'. 
+
+ 
+
+Output
+
+A single line with an integer representing the length of longest palindromic substring.
+
+ 
+
+Example
+
+Input:
+
+5
+ababa 
+
+Output:
+
+5
+
+*/
+
+//MANACHER ALGORITHM
+
+#include <bits/stdc++.h>
+ 
+using namespace std;
+ 
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+ 
+const int maxn = 2e5 + 5;
+ 
+string text;
+int L[maxn];
+int Manacher()
+{
+    int N = text.size();
+    if(N == 0)
+        return 0;
+    N = 2*N + 1; //Position count
+    L[0] = 0;
+    L[1] = 1;
+    int C = 1; //centerPosition
+    int R = 2; //centerRightPosition
+    int i = 0; //currentRightPosition
+    int iMirror; //currentLeftPosition
+    int diff = -1;
+ 
+    for (i = 2; i < N; i++){
+        iMirror  = 2*C-i;
+        L[i] = 0;
+        diff = R - i;
+        if(diff > 0)
+            L[i] = min(L[iMirror], diff);
+ 
+        while ( (i + L[i] < N && (i - L[i]) > 0) &&
+            ( ((i + L[i] + 1) % 2 == 0) ||
+            (text[(i + L[i] + 1)/2] == text[(i - L[i] - 1)/2] )))
+        {
+            L[i]++;
+        }
+ 
+        if (i + L[i] > R)
+        {
+            C = i;
+            R = i + L[i];
+        }
+    }
+ 
+    int Sol = 1;
+ 
+    cik(i, 1, N, 1) Sol = max(Sol, L[i]);
+ 
+    return Sol;
+}
+ 
+int main()
+{
+    ios_base::sync_with_stdio(0); cin.tie(0);
+ 
+//    freopen(".in", "r", stdin);
+ 
+    int L; cin >> L >> text;
+ 
+    cout << Manacher() << "\n";
+ 
+    return 0;
+}
+ 
