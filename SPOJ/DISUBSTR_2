@@ -1,0 +1,124 @@
+/*
+https://www.spoj.com/problems/DISUBSTR/
+
+DISUBSTR - Distinct Substrings
+#suffix-array-8
+
+Given a string, we need to find the total number of its distinct substrings.
+
+Input
+T- number of test cases. T<=20;
+Each test case consists of one string, whose length is <= 1000
+
+Output
+For each test case output one number saying the number of distinct substrings.
+
+Example
+Sample Input:
+2
+CCCCC
+ABABA
+
+Sample Output:
+5
+9
+
+Explanation for the testcase with string ABABA:
+len=1 : A,B
+len=2 : AB,BA
+len=3 : ABA,BAB
+len=4 : ABAB,BABA
+len=5 : ABABA
+Thus, total number of distinct substrings is 9.
+*/
+
+/*
+#STRING 
+Suffix Arrays
+*/
+
+#include <bits/stdc++.h>
+ 
+using namespace std;
+ 
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+#define ull unsigned long long
+ 
+const int MAX = 1e5 + 5;
+ 
+char s[MAX];
+int SA[MAX], wa[MAX], wb[MAX], we[MAX], wv[MAX];
+void Sufix_Array(string cad, int N) {
+    N++;
+    int i, j, p, *x = wa, *y = wb, range = 256;
+    memset(we, 0, range * sizeof(int));
+    memset(SA, 0, sizeof(SA));
+    for(i = 0; i < N; i++)
+        we[x[i] = (int)(cad[i])]++;
+    for(i = 1; i < range; i++)
+        we[i] += we[i - 1];
+    for(i = N - 1; i >= 0; i--)
+        SA[--we[x[i]]] = i;
+    for(j = p = 1; p < N; j <<= 1, range = p) {
+        for(p = 0, i = N - j; i < N; y[p++] = i, i++)
+            ;
+        for(i = 0; i < N; i++)
+            if(SA[i] >= j)
+                y[p++] = SA[i] - j;
+        for(i = 0; i < N; i++)
+            wv[i] = x[y[i]];
+        memset(we, 0, range * sizeof(int));
+        for(i = 0; i < N; i++)
+            we[wv[i]]++;
+        for(i = 1; i < range; i++)
+            we[i] += we[i - 1];
+        for(i = N - 1; i >= 0; i--)
+            SA[--we[wv[i]]] = y[i];
+        swap(x, y);
+        x[SA[0]] = 0;
+        for(p = i = 1; i < N; i++)
+            if(y[SA[i]] == y[SA[i - 1]] && y[SA[i] + j] == y[SA[i - 1] + j])
+                x[SA[i]] = p - 1;
+            else
+                x[SA[i]] = p++;
+    }
+    N--;
+}
+int rank[MAX], LCP[MAX];
+void findLCP(string cad, int N) {
+    int i, j, k;
+    for(i = 1; i <= N; i++)
+        rank[SA[i]] = i;
+    for(k = i = 0; i < N; LCP[rank[i++]] = k)
+        for(k ? k-- : 0, j = SA[rank[i] - 1]; cad[i + k] == cad[j + k]; k++)
+            ;
+}
+ 
+ 
+int main()
+{
+    ios_base::sync_with_stdio(0); cin.tie(0); cout.tie(0);
+ 
+//    freopen(".in", "r", stdin);
+//    freopen(".out", "w", stdout);
+ 
+    int T; cin >> T;
+ 
+    cik(t, 1, T, 1){
+        string A; cin >> A;
+ 
+        int len = A.size();
+ 
+        Sufix_Array(A, len);
+ 
+        findLCP(A, len );
+ 
+        int Sol = 0;
+        cik(i, 1, len, 1)
+            Sol += (len - SA[i]) - LCP[i];
+ 
+        cout << Sol << "\n";
+    }
+ 
+    return 0;
+} 
