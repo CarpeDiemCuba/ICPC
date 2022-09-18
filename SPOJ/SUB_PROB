@@ -1,0 +1,89 @@
+/*
+https://www.spoj.com/problems/SUB_PROB/
+
+SUB_PROB - Substring Problem
+no tags 
+
+String matching is an important problem in computer science research and finds applications in bioinformatics, data mining, pattern recognition, internet security and many more areas.
+
+The problem we consider here is a smaller version of it. You are given a string M and N other strings smaller in length than M. You have to find whether each of these N strings is a substring of M. All strings consist of only alphanumeric characters.
+
+You are required to write a C/CPP code to solve the problem.
+
+Input
+Input to the program consists of a series of lines. The first line contains the string M (no more than 100000 characters long). The next line contains an integer N (<1000) the number of query strings. Each of the next N lines contain a string S (each of which is no more than 2000 characters long).
+
+Output
+Output should consist of N lines each with a character 'Y'/'N' indicating whether the string S is a substring of String M or not.
+
+Example
+Input:
+
+abghABCDE
+2
+abAB
+ab
+
+Output:
+N
+Y
+
+*/
+
+//By Forte11
+#include <bits/stdc++.h>
+ 
+using namespace std;
+ 
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+#define ll long long
+#define ull unsigned long long
+ 
+const int maxn = 1e6 + 5;
+const ull base = 311;
+ 
+ull H[maxn], P[maxn];
+ 
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0); cout.tie(0);
+ 
+    string A;
+    int N, L;
+    cin >>  A >> N;
+ 
+    L = A.size();
+    A = " " + A;
+ 
+    P[0] = 1;
+    cik(i, 1, L, 1){
+        H[i] = H[i - 1] * base + (ull)A[i];
+        P[i] = P[i - 1] * base;
+    }
+ 
+    cik(i, 1, N, 1){
+        string B; cin >> B;
+ 
+        int LB = B.size();
+        ull HB = 0;
+        B = " " + B;
+        cik(j, 1, LB, 1){
+            HB = HB * base + (ull)B[j];
+        }
+ 
+        bool flag = false;
+        cik(j, LB, L, 1){
+            if(H[j] - H[j - LB] * P[LB] == HB){
+                cout << "Y\n";
+                flag = true;
+                break;
+            }
+        }
+ 
+        if(!flag) cout << "N\n";
+    }
+ 
+    return 0;
+}
+ 
