@@ -1,0 +1,157 @@
+/*
+https://lightoj.com/problem/curious-robin-hood
+
+Curious Robin Hood
+
+Robin Hood likes to loot rich people since he helps the poor people with this money. Instead of keeping all the money together he does another trick. He keeps n sacks where he keeps this money. The sacks are numbered from 0 to n-1.
+
+Now each time he can he can do one of the three following tasks:
+
+Give all the money of the ith sack to the poor, leaving the sack empty.
+Add new amount (given in input) in the ith sack.
+Find the total amount of money from ith sack to jth sack.
+Since he is not a programmer, he seeks your help.
+
+Input
+Input starts with an integer T (≤ 5), denoting the number of test cases.
+
+Each case contains two integers n (1 ≤ n ≤ 105) and q (1 ≤ q ≤ 50000). The next line contains n space separated integers in the range [0, 1000]. The ith integer denotes the initial amount of money in the ith sack (0 ≤ i < n).
+
+Each of the next q lines contains a task in one of the following form:
+
+1 i - give all the money of the ith.
+2 i v - add money v (1 ≤ v ≤ 1000) to the ith (0 ≤ i < n) sack.
+3 i j - find the total amount of money from the ith sack to the jth sack (0 ≤ i ≤ j < n).
+Output
+For each test case, print the case number first. If the query type is 1, then print the amount of money given to the poor. If the query type is 3, print the total amount from ith to jth sack.
+
+Sample
+Input	Output
+1
+5 6
+3 2 1 4 5
+1 4
+2 3 4
+3 0 3
+1 2
+3 0 4
+1 1
+
+Case 1:
+5
+14
+1
+13
+2
+
+*/
+
+
+//By Forte11
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+
+const int maxn = 1e5 + 5;
+
+int A[maxn], ST[maxn * 4];
+
+void build(int nod, int ini, int fin){
+    if(ini == fin){
+        ST[nod] = A[ini];
+        return;
+    }
+
+    int mit = (ini + fin) >> 1;
+
+    build(nod << 1, ini, mit);
+    build((nod << 1) + 1, mit + 1, fin);
+
+    ST[nod] = ST[nod << 1] + ST[(nod << 1) + 1];
+    return;
+}
+
+void update(int nod, int ini, int fin, int a, int b, int c){
+    if(fin < a || ini > b){
+        return;
+    }
+    if(a <= ini && fin <= b){
+        ST[nod] += c;
+        return;
+    }
+
+    int mit = (ini + fin) >> 1;
+
+    update(nod << 1, ini, mit, a, b, c);
+    update((nod << 1) + 1, mit + 1, fin, a, b, c);
+
+    ST[nod] = ST[nod << 1] + ST[(nod << 1) + 1];
+    return;
+}
+
+int query(int nod, int ini, int fin, int a, int b){
+    if(fin < a || ini > b){
+        return 0;
+    }
+    if(a <= ini && fin <= b){
+        return ST[nod];
+    }
+
+    int mit = (ini + fin) >> 1;
+
+    int q1 = query(nod << 1, ini, mit, a, b);
+    int q2 = query((nod << 1) + 1, mit + 1, fin, a, b);
+    return q1 + q2;
+}
+
+int main()
+{
+//    ios_base::sync_with_stdio(0);
+//    cin.tie(0); cout.tie(0);
+//
+//    freopen(".in", "r", stdin);
+//    freopen(".out", "w", stdout);
+
+    int T; scanf("%d", &T);
+
+    cik(t, 1, T, 1){
+        int N, Q; scanf("%d%d", &N, &Q);
+
+        cik(i, 1, N, 1){
+            cin >> A[i];
+        }
+
+        build(1, 1, N);
+
+        //cout << "Case " << t << ":\n";
+        printf("Case %d:\n", t);
+        cik(i, 1, Q, 1){
+            int op, a; scanf("%d%d", &op, &a);
+            a++;
+
+            if(op == 1){
+                //cout << A[a] << "\n";
+                printf("%d\n", A[a]);
+
+                update(1, 1, N, a, a, -A[a]);
+                A[a] = 0;
+            }
+            else{
+                int b; scanf("%d", &b);
+
+                if(op == 2){
+                    update(1, 1, N, a, a, b);
+                    A[a] += b;
+                }
+                else{
+                    b++;
+                    printf("%d\n", query(1, 1, N, a, b));
+                    //cout << query(1, 1, N, a, b) << "\n";
+                }
+            }
+        }
+    }
+    return 0;
+}
