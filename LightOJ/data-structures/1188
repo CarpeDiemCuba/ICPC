@@ -1,0 +1,139 @@
+/*
+https://lightoj.com/problem/fast-queries
+
+Fast Queries
+
+Given an array of N integers indexed from 1 to N, and q queries, each in the form i j, you have to find the number of distinct integers from index i to j (inclusive).
+
+Input
+Input starts with an integer T (≤ 5), denoting the number of test cases.
+
+The first line of a case is a blank line. The next line contains two integers N (1 ≤ N ≤ 105), q (1 ≤ q ≤ 50000). The next line contains N space separated integers forming the array. There integers range in [0, 105].
+
+Each of the next q lines will contain a query which is in the form i j (1 ≤ i ≤ j ≤ N).
+
+Output
+For each test case, print the case number in a single line. Then for each query you have to print a line containing number of distinct integers from index i to j.
+
+Sample
+Input	Output
+1
+
+8 5
+1 1 1 2 3 5 1 2
+1 8
+2 3
+3 6
+4 5
+4 8
+
+Case 1:
+4
+1
+4
+2
+4
+*/
+
+
+//By Forte11
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+
+const int maxn = 1e5 + 5;
+
+int A[maxn], INI[maxn], FIN[maxn], G[maxn], F[maxn];
+vector<int> SQ[maxn];
+
+map<int, int> M;
+
+int N, Q, a, b;
+
+void build(){
+    cik(i, 1, N, 1){
+        if(M.find(A[i]) != M.end()){
+            F[i] = M[A[i]];
+        }
+        M[A[i]] = i;
+    }
+
+    int g = 1;
+    int L = sqrt(N);
+    cik(i, 1, N, 1){
+        if(i % L == 0){
+            FIN[g] = i - 1;
+            g++;
+            INI[g] = i;
+        }
+
+        G[i] = g;
+        SQ[g].push_back(F[i]);
+    }
+
+    cik(i, 1, g, 1){
+        sort(SQ[i].begin(), SQ[i].end());
+    }
+
+    return;
+}
+
+int query(){
+    int i = a;
+
+    int Sol = 0;
+    for(; i <= b && G[i] == G[a]; i++){
+        if(a > F[i]){
+            Sol++;
+        }
+    }
+    for(; i <= b && G[i] != G[b]; i = INI[G[i] + 1]){
+        Sol += lower_bound(SQ[G[i]].begin(), SQ[G[i]].end(), a) - SQ[G[i]].begin();
+    }
+    for(; i <= b; i++){
+        if(a > F[i]){
+            Sol++;
+        }
+    }
+    return Sol;
+}
+
+void clean(){
+    M.clear();
+    cik(i, 1, sqrt(N) + 5, 1){
+        SQ[i].clear();
+    }
+
+    cik(i, 1, N, 1){
+        INI[i] = FIN[i] = G[i] = F[i] = 0;
+    }
+    return;
+}
+
+int main()
+{
+    int T; scanf("%d", &T);
+
+    cik(t, 1, T, 1){
+        scanf("%d%d", &N, &Q);
+
+        cik(i, 1, N, 1){
+            scanf("%d", &A[i]);
+        }
+
+        build();
+
+        printf("Case %d:\n", t);
+        cik(i, 1, Q, 1){
+            scanf("%d%d", &a, &b);
+
+            printf("%d\n", query());
+        }
+
+        clean();
+    }
+
+    return 0;
+}
