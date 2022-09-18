@@ -1,0 +1,90 @@
+/*
+
+https://lightoj.com/problem/ghajini
+
+Ghajini
+
+Amir is having a short term memory problem. He can't remember anything for more than d milliseconds.
+
+Amir is playing a game named 'Find Max Difference'. The game is actually designed for children. There is a screen which shows an integer for 1 millisecond. In the very next millisecond the screen shows another integer. The target of the game is to find the maximum difference of any two numbers shown in the screen.
+
+But soon Amir figured out that the game is quite difficult for him because of his short term memory problem. So, he uses a paper to write down the maximum difference he has found so far.
+
+Even with the above approach, Amir is not able to keep up and thus he is asking you to solve the problem for him.
+
+Input
+Input starts with an integer T (≤ 5), denoting the number of test cases.
+
+Each case starts with two integers n (2 ≤ n ≤ 105), d (1 ≤ d ≤ n), n means the total number of integers the screen will show. The next line contains n space separated integers in range [0, 108].
+
+Output
+For each case, print the case number and the maximum difference found by Amir.
+
+Sample
+Input	Output
+3
+6 2
+6 0 8 8 8 4
+8 3
+19 8 4 13 12 1 0 13
+2 2
+1 1
+
+Case 1: 8
+Case 2: 15
+Case 3: 0
+*/
+
+
+//By Forte11
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+#define bi pair<int, int>
+#define f first
+#define s second
+#define mkp make_pair
+
+const int maxn = 1e5 + 5;
+
+int A[maxn];
+set<bi > S;
+
+int N, M;
+
+int main() {
+    int T; scanf("%d", &T);
+
+    cik(t, 1, T, 1){
+        scanf("%d%d", &N, &M);
+
+        int Sol = 0;
+
+        S.clear();
+        S.insert(mkp(0, 0));
+
+        cik(i, 1, N, 1){
+            cin >> A[i];
+
+            S.insert(mkp(A[i], i));
+
+            if(i >= M){
+                S.erase(S.find(mkp(A[i - M], i - M)));
+                set<bi > :: iterator it = S.begin();
+
+                int a = it -> f;
+                it = S.end(); it--;
+
+                int b = it -> f;
+                Sol = max(Sol, b - a);
+            }
+        }
+        printf("Case %d: %d\n", t, Sol);
+    }
+
+    return 0;
+}
+
+
