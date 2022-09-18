@@ -1,0 +1,121 @@
+/*
+https://www.spoj.com/problems/NAJPF/
+
+NAJPF - Pattern Find
+#kmp-algorithm
+
+Your task is so simple given a string and a pattern. You find the pattern on the given string. If found print how many time found the pattern and their index. Otherwise print ‘Not Found’
+
+Input:          
+
+The input   line consists of a number T (1 ≤ T ≤ 50) test cases.
+
+For each case given two string number  A,B. the string and the pattern  1 ≤|A|, |B| ≤10^6
+
+All character will be lower case Latin character.  And |  | is the length of string.
+
+Output:
+
+For each case print the number  (found pattern from the given string) next line there position And Otherwise print 'Not Found' without quota.
+There will a blank line between two cases.
+
+Sample:
+
+Input
+
+Output
+
+3
+ababab ab
+aaaaa bbb
+aafafaasf aaf
+
+3
+1 3 5
+
+Not Found
+
+1
+1
+
+*/
+//KMP
+
+#include <bits/stdc++.h>
+ 
+using namespace std;
+ 
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+#define acik(i, a, b, c) for(int i =(a); i >=(b); i -=(c))
+#define ll long long
+#define ull unsigned long long
+#define bi pair<int, int>
+#define f first
+#define s second
+#define mkp make_pair
+ 
+const int maxn = 1e6 + 5;
+ 
+int LCP[maxn];
+ 
+string A, B;
+ 
+int LA, LB;
+ 
+void find_lcp(){
+    int pos = 0;
+    cik(i, 1, LB - 1, 0){
+        if(B[i] == B[pos]){
+            pos++;
+            LCP[i] = pos;
+            i++;
+        }else{
+            if(pos) pos = LCP[pos - 1];
+            else LCP[i] = 0, i++;
+        }
+    }return;
+}
+ 
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0); cout.tie(0);
+ 
+    int T; cin >> T;
+    cik(t, 1, T, 1){
+        if(t != 1) cout << "\n";
+ 
+        cin >> A >> B;
+ 
+        int LA = A.size();
+        int LB = B.size();
+ 
+        find_lcp();
+ 
+        vector<int> V;
+        int pos = 0;
+        cik(i, 0, LA - 1, 0){
+            if(A[i] == B[pos]){
+                i++; pos++;
+            }if(pos == LB){
+                V.push_back(i - LB + 1);
+                pos = LCP[pos - 1];
+            }else if(i < A.size() && A[i] != B[pos]){
+                if(pos) pos = LCP[pos - 1];
+                else i++;
+            }
+ 
+        }
+ 
+        if(V.size() == 0) cout << "Not Found";
+        else{
+            cout << V.size() << "\n";
+            cik(i, 0, V.size() - 1, 1){
+                if(i) cout << " ";
+                cout << V[i];
+            }
+        }cout << "\n";
+    }
+    return 0;
+} 
+
