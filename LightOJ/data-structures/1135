@@ -1,0 +1,189 @@
+/*
+https://lightoj.com/problem/count-the-multiples-of-3
+
+Count the Multiples of 3
+
+You have an array with n elements which is indexed from 0 to n - 1. Initially all elements are zero. Now you have to deal with two types of operations:
+
+Increase the numbers between indices i and j (inclusive) by 1. This is represented by the command '0 i j'.
+Answer how many numbers between indices i and j (inclusive) are divisible by 3. This is represented by the command '1 i j'.
+Input
+Input starts with an integer T (≤ 5), denoting the number of test cases.
+
+Each case starts with a line containing two integers n (1 ≤ n ≤ 105) and q (1 ≤ q ≤ 50000) denoting the number of queries. Each query will be either in the form '0 i j' or '1 i j' where i, j are integers and 0 ≤ i ≤ j < n.
+
+Output
+For each case, print the case number first. Then for each query in the form '1 i j', print the desired result.
+
+Sample
+Input	Output
+1
+10 9
+0 0 9
+0 3 7
+0 1 4
+1 1 7
+0 2 2
+1 2 4
+1 8 8
+0 5 8
+1 6 9
+
+Case 1:
+2
+3
+0
+2
+*/
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+#define ll long long
+#define ull unsigned long long
+#define bi pair<int, int>
+#define f first
+#define s second
+#define mkp make_pair
+
+const int maxn = 1e5 + 5;
+
+struct Node{
+    int m0, m1, m2;
+} SG[maxn * 4];
+
+int LZ[maxn * 4];
+
+int a, b;
+
+void add_1(int nod){
+    Node a;
+    a.m0 = SG[nod].m1;
+    a.m1 = SG[nod].m2;
+    a.m2 = SG[nod].m0;
+
+    SG[nod] = a;
+    return;
+}
+
+void unit_node(int a, int b, int c){
+    SG[c].m0 = SG[a].m0 + SG[b].m0;
+    SG[c].m1 = SG[a].m1 + SG[b].m1;
+    SG[c].m2 = SG[a].m2 + SG[b].m2;
+    return;
+}
+
+void propaga(int nod, int ini, int fin){
+    if(ini == fin){
+        return;
+    }
+
+    int mit = (ini + fin) >> 1;
+
+    int n1 = nod << 1;
+    int n2 = (nod << 1) + 1;
+
+    cik(i, 1, LZ[nod], 1){
+        add_1(n1);
+        add_1(n2);
+    }
+
+    LZ[n1] = (LZ[n1] + LZ[nod]) % 3;
+    LZ[n2] = (LZ[n2] + LZ[nod]) % 3;
+
+    LZ[nod] = 0;
+    return;
+}
+
+int query(int nod, int ini, int fin){
+    if(LZ[nod]){
+        cik(i, 1, LZ[nod], 1){
+            propaga(nod, ini, fin);
+        }
+    }
+
+    if(a > fin || ini > b){
+        return 0;
+    }
+    if(a <= ini && fin <= b){
+        return SG[nod].m0;
+    }
+    int mit = (ini + fin) >> 1;
+
+    return query(nod << 1, ini, mit) + query((nod << 1) + 1, mit + 1, fin);
+}
+
+void update(int nod, int ini, int fin){
+    if(LZ[nod]){
+        cik(i, 1, LZ[nod], 1){
+            propaga(nod, ini, fin);
+        }
+    }
+    if(a > fin || ini > b){
+        return;
+    }
+    if(a <= ini && fin <= b){
+        LZ[nod] = (LZ[nod] + 1) % 3;
+
+        add_1(nod);
+        return;
+    }
+
+    int mit = (ini + fin) >> 1;
+
+    update(nod << 1, ini, mit);
+    update((nod << 1) + 1, mit + 1, fin);
+
+    unit_node(nod << 1, (nod << 1) + 1, nod);
+}
+
+void build(int nod, int ini, int fin){
+    
+LZ[nod] = 0;
+if(ini == fin){
+        SG[nod].m0 = 1;
+        SG[nod].m1 = 0;
+        SG[nod].m2 = 0;
+        return;
+    }
+
+    int mit = (ini + fin) >> 1;
+
+    build(nod << 1, ini, mit);
+    build((nod << 1) + 1, mit + 1, fin);
+
+    unit_node(nod << 1, (nod << 1) + 1, nod);
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0); cout.tie(0);
+
+    int T; scanf("%d", &T);
+
+    cik(t, 1, T, 1){
+        int N, Q; scanf("%d%d", &N, &Q);
+
+        build(1, 1, N);
+
+        printf("Case %d:\n", t);
+
+        cik(i, 1, Q, 1){
+            int op; scanf("%d%d%d", &op, &a, &b);
+
+            a++; b++;
+
+            if(op){
+                printf("%d\n", query(1, 1, N) );
+            }
+            else{
+                update(1, 1, N);
+            }
+        }
+    }
+
+    return 0;
+}
