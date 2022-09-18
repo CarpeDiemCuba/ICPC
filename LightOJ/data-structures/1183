@@ -1,0 +1,179 @@
+/*
+https://lightoj.com/problem/computing-fast-average
+
+Computing Fast Average
+
+Given an array of integers (0 indexed), you have to perform two types of queries in the array.
+
+1 i j v - change the value of the elements from ith index to jth index to v.
+2 i j - find the average value of the integers from ith index to jth index.
+You can assume that initially all the values in the array are 0.
+
+Input
+Input starts with an integer T (≤ 5), denoting the number of test cases.
+
+Each case contains two integers: n (1 ≤ n ≤ 105), q (1 ≤ q ≤ 50000), where n denotes the size of the array. Each of the next q lines will contain a query of the form:
+
+1 i j v (0 ≤ i ≤ j < n, 0 ≤ v ≤ 10000)
+2 i j (0 ≤ i ≤ j < n)
+Output
+For each case, print the case number first. Then for each query of the form '2 i j' print the average value of the integers from i to j. If the result is an integer, print it. Otherwise print the result in 'x/y' form, where x denotes the numerator and y denotes the denominator of the result and x and y are relatively prime.
+
+Sample
+Input	Output
+1
+10 6
+1 0 6 6
+2 0 1
+1 1 1 2
+2 0 5
+1 0 3 7
+2 0 1
+
+Case 1:
+6
+16/3
+7
+
+*/
+
+
+
+
+//By Forte11
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+
+const int maxn = 1e5 + 5;
+
+int SG[maxn * 4], LZ[maxn * 4];
+
+int N, M, a, b, c;
+
+void propaga(int nod, int ini, int fin){
+    if(ini == fin){
+        LZ[nod] = -1;
+        return;
+    }
+
+    int mit = (ini + fin) >> 1;
+    int n1 = nod << 1;
+    int n2 = n1 + 1;
+
+    SG[n1] = (mit - ini + 1) * LZ[nod];
+    SG[n2] = (fin - mit) * LZ[nod];
+
+    LZ[n1] = LZ[nod];
+    LZ[n2] = LZ[nod];
+
+    LZ[nod] = -1;
+    return;
+}
+
+void update(int nod, int ini, int fin){
+    if(LZ[nod] != -1){
+        propaga(nod, ini, fin);
+    }
+
+    if(a > fin || ini > b){
+        return;
+    }
+
+    if(a <= ini && fin <= b){
+        SG[nod] = (fin - ini + 1) * c;
+        LZ[nod] = c;
+        return;
+    }
+
+    int mit = (ini + fin) >> 1;
+    int n1 = nod << 1;
+    int n2 = n1 + 1;
+
+    update(n1, ini, mit);
+    update(n2, mit + 1, fin);
+
+    SG[nod] = SG[n1] + SG[n2];
+    return;
+}
+
+int query(int nod, int ini, int fin){
+    if(LZ[nod] != -1){
+        propaga(nod, ini, fin);
+    }
+
+    if(a > fin || ini > b){
+        return 0;
+    }
+
+    if(a <= ini && fin <= b){
+        return SG[nod];
+    }
+
+    int mit = (ini + fin) >> 1;
+    int n1 = nod << 1;
+    int n2 = n1 + 1;
+
+
+    int q1 = query(n1, ini, mit) ;
+    int q2  = query(n2, mit + 1, fin);
+
+    return q1 + q2;
+}
+
+void build(int nod, int ini, int fin){
+    SG[nod] = 0;
+    LZ[nod] = -1;
+    if(ini == fin){
+        return;
+    }
+
+    int mit = (ini + fin) >> 1;
+
+    build(nod << 1, ini, mit);
+    build((nod << 1) + 1, mit + 1, fin);
+    return;
+}
+
+int main() {
+    int T; scanf("%d", &T);
+
+    cik(t, 1, T, 1){
+        scanf("%d%d", &N, &M);
+
+        build(1, 1, N);
+
+        printf("Case %d:\n", t);
+        cik(i, 1, M, 1){
+            int op; scanf("%d%d%d", &op, &a, &b);
+
+            a++, b++;
+
+            if(op == 1){
+                scanf("%d", &c);
+                update(1, 1, N);
+            }
+            else{
+                int Sum = query(1, 1, N);
+                int cant = b - a + 1;
+
+                while(__gcd(Sum, cant) != 1){
+                    int GCD = __gcd(Sum, cant);
+                    Sum /= GCD;
+                    cant /= GCD;
+                }
+
+                if(cant != 1){
+                    printf("%d/%d\n", Sum, cant);
+                }
+                else{
+                    printf("%d\n", Sum);
+                }
+            }
+        }
+    }
+
+    return 0;
+}
