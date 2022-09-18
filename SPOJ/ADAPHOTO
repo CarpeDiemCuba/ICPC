@@ -1,0 +1,119 @@
+/*
+https://www.spoj.com/problems/ADAPHOTO/
+
+
+ADAPHOTO - Ada and Terramorphing
+#probability-theory #hashing #suffix-array-8
+
+Ada the Ladybug was already on two trips this year. She visited two countries: Republic of Bugongo and Democratic Republic of Bugongo. Even though those countries are completely different and far far away from each other, Ada found some similarities. Now she is looking at photos from each of those countries and examines similarities. Sadly, both of the sequences of photos are very long so she can't handle it herself.
+
+The sequence of photos is sequence of following terrestrial formations: A hill (^), a valley (v), a plain (-), a lake ~
+
+Find the longest common contiguous subsequence between the two sequences of photos.
+
+Important note: Terramorphism is very difficult process. One can't easily influence it so each of the terrestrial formation is generated with more or less 25%.
+
+Input
+The first two and the only lines of input contiguous first and second sequence of photos 1 ≤ |s1|, |s2| ≤ 106
+
+Output
+For each test-cases, print the longest common sequence.
+
+Example Input
+-~^v-
+^--v
+Example Output
+1
+Example Input 2
+-~
+-~v^^^^^v-
+Example Output 2
+2
+*/
+
+//#Suffix Arrays
+
+#include <bits/stdc++.h>
+ 
+using namespace std;
+ 
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+ 
+const int MAXN = 2e6 + 5;
+ 
+string S;
+int N, gap;
+int sa[MAXN], pos[MAXN], tmp[MAXN], lcp[MAXN];
+ 
+bool sufCmp(int i, int j)
+{
+    if (pos[i] != pos[j])
+        return pos[i] < pos[j];
+    i += gap;
+    j += gap;
+    return (i < N && j < N) ? pos[i] < pos[j] : i > j;
+}
+ 
+void buildSA()
+{
+    N = S.size();
+    for(int i = 0; i < N; i++) sa[i] = i, pos[i] = S[i];
+    for (gap = 1;; gap *= 2)
+    {
+        sort(sa, sa + N, sufCmp);
+        for(int i = 0; i < N - 1; i++) tmp[i + 1] = tmp[i] + sufCmp(sa[i], sa[i + 1]);
+        for(int i = 0; i < N; i++) pos[sa[i]] = tmp[i];
+        if (tmp[N - 1] == N - 1) break;
+    }
+}
+ 
+void buildLCP()
+{
+    for (int i = 0, k = 0; i < N; ++i) if (pos[i] != N - 1)
+    {
+        for (int j = sa[pos[i] + 1]; S[i + k] == S[j + k];)
+        ++k;
+        lcp[pos[i]] = k;
+        if (k)--k;
+    }
+}
+ 
+void clean(){
+    memset(sa, 0, sizeof(sa));
+    memset(pos, 0, sizeof(pos));
+    memset(tmp, 0, sizeof(tmp));
+    memset(lcp, 0, sizeof(lcp));
+    return;
+}
+ 
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0); cout.tie(0);
+ 
+//    freopen(".in", "r", stdin);
+//    freopen(".out", "w", stdout);
+ 
+    int L; string A, B;
+    cin >> A >> B;
+    L = A.size();
+ 
+    S = A + '$' + B;
+ 
+    buildSA();
+    buildLCP();
+ 
+    int Sol = 0, pos;
+    cik(i, 0, N - 1, 1){
+        if(lcp[i] > Sol){
+            if((sa[i] < L && L < sa[i + 1])
+            || (sa[i] > L && L > sa[i + 1]))
+                Sol = lcp[i], pos = sa[i];
+        }
+    }
+ 
+    cout << Sol << "\n";
+ 
+    return 0;
+}
+ 
