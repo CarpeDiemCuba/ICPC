@@ -1,0 +1,202 @@
+/*
+
+https://lightoj.com/problem/min-max-roads
+
+Min Max Roads
+
+You live in a Big country where there are many bi-directional roads connecting the cities. Since the people of the country are quite intelligent, they designed the country such that there is exactly one path to go from one city to another. A path consists of one or more connected roads.
+
+Here cities are denoted by integers and each road has a cost of traveling. Now you are given the information about the Country. And you are given some queries, each consists of two cities. You have to find the shortest and longest road in the path from one city to another.
+
+Input
+Input starts with an integer T (≤ 5), denoting the number of test cases.
+
+The first line of each case is a blank line. The next line contains n (2 ≤ n ≤ 105) denoting the number of cities. Then there will be n-1 lines containing three integers each. They will be given in the form u v w (1 ≤ u, v ≤ n, 0 < w ≤ 105, u ≠ v) meaning that there is a road between u and v and the cost of the road is w.
+
+The next line contains an integer q (1 ≤ q ≤ 25000) denoting the number of queries. Each of the next q lines contains two integers x and y (1 ≤ x, y ≤ n, x ≠ y).
+
+Output
+For each case, print the case number in a single line. Then for each query x y, you should print one line containing the shortest and longest road along the path. See the samples for formatting.
+
+Sample
+Input	Output
+2
+
+6
+3 6 50
+2 5 30
+2 4 300
+1 2 100
+1 3 200
+4
+1 4
+4 6
+2 5
+3 5
+
+2
+1 2 100
+1
+1 2
+
+Case 1:
+100 300
+50 300
+30 30
+30 200
+Case 2:
+100 100
+*/
+
+
+//By Forte11
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+#define acik(i, a, b, c) for(int i =(a); i >=(b); i -=(c))
+#define bi pair<int, int>
+#define f first
+#define s second
+#define mkp make_pair
+#define mx(a, b) ((a) > (b) ? (a) : (b))
+#define mn(a, b) ((a) < (b) ? (a) : (b))
+
+const int maxn = 1e5 + 5;
+const int maxm = log2(1e5 + 5) + 5;
+
+int LCA[maxn][maxm], CMX[maxn][maxm], CMN[maxn][maxm], Level[maxn];
+
+vector<bi > Adlist[maxn];
+
+int M;
+
+void build_lca(){
+    queue<int> q;
+    q.push(1);
+    Level[1] = 1;
+
+    while(!q.empty()){
+        int nod = q.front();
+        q.pop();
+
+        int lon = Adlist[nod].size() - 1;
+
+        cik(i, 0, lon, 1){
+            int nn = Adlist[nod][i].f;
+            int ncost = Adlist[nod][i].s;
+
+            if(Level[nn]){
+                continue;
+            }
+            q.push(nn);
+            Level[nn] = Level[nod] + 1;
+            LCA[nn][0] = nod;
+            CMX[nn][0] = CMN[nn][0] = ncost;
+
+            int LOG = log2(Level[nn]);
+
+            cik(k, 1, LOG, 1){
+                LCA[nn][k] = LCA[LCA[nn][k - 1]][k - 1];
+                CMX[nn][k] = mx(CMX[nn][k - 1], CMX[LCA[nn][k - 1]][k - 1]);
+                CMN[nn][k] = mn(CMN[nn][k - 1], CMN[LCA[nn][k - 1]][k - 1]);
+            }
+        }
+    }
+    return;
+}
+
+bi query(int a, int b){
+    bi K; K.f = 1e9, K.s = 0;
+
+    if(Level[a] < Level[b]){
+        swap(a, b);
+    }
+
+    int LOG = log2(Level[a]);
+    acik(i, LOG, 0, 1){
+        if(Level[a] - (1 << i) >= Level[b] && LCA[a][i]){
+            K.f = mn(K.f, CMN[a][i]);
+            K.s = mx(K.s, CMX[a][i]);
+
+            a = LCA[a][i];
+        }
+    }
+
+    if(a == b){
+//        K.f = mn(K.f, mn(CMN[a][0], CMN[b][0]));
+//        K.s = mx(K.s, mx(CMX[a][0], CMX[b][0]));
+        return K;
+    }
+
+    LOG = log2(Level[a]);
+
+    acik(i, LOG, 0, 1){
+        if(LCA[a][i] != LCA[b][i] && LCA[a][i]){
+            K.f = mn(K.f, mn(CMN[a][i], CMN[b][i]));
+            K.s = mx(K.s, mx(CMX[a][i], CMX[b][i]));
+
+            a = LCA[a][i];
+            b = LCA[b][i];
+        }
+    }
+
+    K.f = mn(K.f, mn(CMN[a][0], CMN[b][0]));
+    K.s = mx(K.s, mx(CMX[a][0], CMX[b][0]));
+
+    return K;
+}
+
+void clean(){
+    cik(i, 1, M, 1){
+        Adlist[i].clear();
+        Level[i] = 0;
+
+        cik(j, 0, maxm - 5, 1){
+            LCA[i][j] = CMN[i][j] = CMX[i][j] = 0;
+        }
+    }
+    return;
+}
+
+int main()
+{
+//    ios_base::sync_with_stdio(0);
+//    cin.tie(0);
+//
+//    freopen(".in", "r", stdin);
+//    freopen(".out", "w", stdout);
+
+    int T; scanf("%d", &T);
+
+    cik(t, 1, T, 1){
+        cin >> M;
+
+        cik(i, 1, M - 1, 1){
+            int a, b, c; scanf("%d%d%d", &a, &b, &c);
+            Adlist[a].push_back(mkp(b, c));
+            Adlist[b].push_back(mkp(a, c));
+
+        }
+
+        build_lca();
+
+        int Qu; cin >> Qu;
+
+        //cout << "Case " << t << ":\n";
+        printf("Case %d:\n", t);
+        cik(i, 1, Qu, 1){
+            int a, b; scanf("%d%d", &a, &b);
+            //cin >> a >> b;
+            bi Sol = query(a, b);
+
+            //cout << Sol.f << " " << Sol.s << "\n";
+            printf("%d %d\n", Sol.f, Sol.s);
+        }
+
+        clean();
+    }
+
+    return 0;
+}
