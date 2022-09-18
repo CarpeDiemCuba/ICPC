@@ -1,0 +1,214 @@
+/*
+https://lightoj.com/problem/a-secret-mission
+
+A Secret Mission
+
+All of you have heard about the Evil Jack Diablo, the one who had stolen the whole problem set from the Good Judges last time. Once again he is making evil plans, but he does not know that Alice is on a secret mission. There will be several pairs of City of Evils on the way to Alice's mission.
+
+There will be N evil cities (numbered by 1, 2, ..., N) connected by M bidirectional roads. There will be evil guards patrolling the roads. Since they are not much intelligent, the danger of traveling in each road is not the same. Alice is going to travel from city s to city t. You can safely assume that it's possible to travel from one city to another. John the legend programmer has estimated the danger of each road but since he is busy arranging contests, Alice is depending on you now. The danger of a path from city s to city t is defined as the maximum danger of any road on this path. As you are one of the most talented programmers, you will love to help Alice by finding the least dangerous paths to prevent Evil Jack from doing harm to the Judges.
+
+Input
+Input starts with an integer T (≤ 3), denoting the number of test cases.
+
+Each case contains two integers N, M (2 ≤ N ≤ 50000, 1 ≤ M ≤ 105) denoting the number of cities and roads. Each of the next M lines contains three integers: xi, yi, di (1 ≤ xi, yi ≤ N, xi ≠ yi, 1 ≤ di ≤ 104) - the cities connected by the ith road and its degree of danger. Next line contains an integer q (1 ≤ q ≤ 50000). Each of the next q lines contains two integers: si and ti (1 ≤ si, ti ≤ N, si ≠ ti).
+
+Output
+For each test case, print the case number first. Then for each query si ti, print the least dangerous path in a line.
+
+Sample
+Input	Output
+2
+4 5
+1 2 10
+1 3 20
+1 4 100
+2 4 30
+3 4 10
+2
+1 4
+4 1 
+2 1
+1 2 100
+1
+1 2
+
+Case 1:
+20
+20
+Case 2:
+100
+*/
+
+//By Forte11
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+#define acik(i, a, b, c) for(int i =(a); i >=(b); i -=(c))
+#define bi pair<int, int>
+#define tri pair<int, bi>
+#define f first
+#define s second
+#define mkp make_pair
+#define mx(a, b) ((a) > (b) ? (a) : (b))
+
+const int maxn = 5e4 + 5;
+const int maxm = log2(5e4 + 5);
+
+vector<bi > Adlist[maxn], Map[maxn];
+
+int LCA[maxn][maxm], C[maxn][maxm], Level[maxn];
+bool B[maxn];
+
+int N, M;
+
+void Prim(){
+    priority_queue<tri, vector<tri >, greater<tri > > Q;
+    Q.push(mkp(0, mkp(1, 0)));
+
+    while(!Q.empty()){
+        int cost = Q.top().f;
+        int nod = Q.top().s.f;
+        int father = Q.top().s.s;
+        Q.pop();
+
+        if(B[nod]){
+            continue;
+        }
+        B[nod] = true;
+
+        if(father){
+            Map[nod].push_back(mkp(cost, father));
+            Map[father].push_back(mkp(cost, nod));
+        }
+        int lon = Adlist[nod].size() - 1;
+        cik(i, 0, lon, 1){
+            int nn = Adlist[nod][i].s;
+            int ncost = Adlist[nod][i].f;
+
+            if(!B[nn]){
+                Q.push(mkp(ncost, mkp(nn, nod)));
+            }
+        }
+    }
+    return;
+}
+
+void build_lca(){
+    queue<int> q;
+    q.push(1);
+    Level[1] = 1;
+
+    while(!q.empty()){
+        int nod = q.front();
+        q.pop();
+
+        int lon = Map[nod].size() - 1;
+        cik(i, 0, lon, 1){
+            int nn = Map[nod][i].s;
+            int ncost = Map[nod][i].f;
+
+            if(Level[nn]){
+                continue;
+            }
+
+            q.push(nn);
+            LCA[nn][0] = nod;
+            C[nn][0] = ncost;
+            Level[nn] = Level[nod] + 1;
+
+            int LOG = log2(Level[nn]);
+            cik(k, 1, LOG, 1){
+                if(LCA[nn][k - 1]){
+                    LCA[nn][k] = LCA[LCA[nn][k - 1]][k - 1];
+                    C[nn][k] = mx(C[nn][k - 1], C[LCA[nn][k - 1]][k - 1]);
+                }
+            }
+        }
+    }
+    return;
+}
+
+int query(int a, int b){
+    int cost = 0;
+
+    if(Level[a] < Level[b]){
+       swap(a, b);
+    }
+
+    int LOG = log2(Level[a]);
+    acik(k, LOG, 0, 1){
+        if(Level[a] - (1 << k) >= Level[b] && LCA[a][k]){
+            cost = mx(cost, C[a][k]);
+            a = LCA[a][k];
+        }
+    }
+
+    if(a == b){
+        return cost;
+    }
+
+    LOG = log2(Level[a]);
+    acik(k, LOG, 0, 1){
+        if(LCA[a][k] != LCA[b][k] && LCA[a][k]){
+            cost = mx(cost, mx(C[a][k], C[b][k]));
+            a = LCA[a][k];
+            b = LCA[b][k];
+        }
+    }
+    return mx(cost, mx(C[a][0], C[b][0]));
+}
+
+void clean(){
+    cik(i, 1, N, 1){
+        Adlist[i].clear();
+        Map[i].clear();
+
+        B[i] = false;
+        Level[i] = 0;
+
+        cik(j, 0, maxm - 1, 1){
+            LCA[i][j] = C[i][j] =0;
+        }
+    }
+    return;
+}
+
+int main()
+{
+//    ios_base::sync_with_stdio(0);
+//    cin.tie(0);
+
+//    freopen(".in", "r", stdin);
+//    freopen(".out", "w", stdout);
+
+    int T; scanf("%d", &T);
+
+    cik(t, 1, T, 1){
+        scanf("%d%d", &N, &M);
+
+        cik(i, 1, M, 1){
+            int a, b, c; scanf("%d%d%d", &a, &b, &c);
+
+            Adlist[a].push_back(mkp(c, b));
+            Adlist[b].push_back(mkp(c, a));
+        }
+
+        Prim();
+
+        build_lca();
+
+        int Qu; scanf("%d", &Qu);
+
+        printf("Case %d:\n", t);
+        cik(i, 1, Qu, 1){
+            int a, b; scanf("%d%d", &a, &b);
+            printf("%d\n", query(a, b));
+        }
+
+        clean();
+    }
+
+    return 0;
+}
