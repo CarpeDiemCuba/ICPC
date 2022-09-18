@@ -1,0 +1,193 @@
+/*
+https://www.spoj.com/problems/ARDA1/
+
+ARDA1 - The hunt for Gollum
+#text-processing #kmp-algorithm
+
+Along the skirts of the Dead Marshes I followed it, and then I had him. Lurking by a stagnant mere, peering in the water as the dark eve fell, I caught him, Gollum. He was covered with green slime. He will never love me, I fear; for he bit me, and I was not gentle. Nothing more did I ever get from his mouth than the marks of his teeth.
+
+
+“The Lord of the Rings: The fellowship of the Ring”
+
+ 
+
+Hearing Gandalf’s advice, Aragorn has started hunting creature Gollum. After several days following his footprints, he has arrived to the Dead Marshes. He has a map of the marshes, that can be viewed as an M1 * M2 matrix containing lowercase letters form English alphabet (i.e. letters from ‘a’ to ‘z’).
+
+Being a skilled ranger, Aragorn has been able to fully characterize Gollum preferred place (if you are interested, you should know that it must be dark, wet, creepy and full of fishes!). It can be described as an N1 * N2 matrix containing lowercase letters form English alphabet.
+
+Your task is simple: write a program that, given Gollum’s preferred place description and Aragorn’s map, output all possible locations of the creature.
+
+Let’s look at an example: suppose Gollum’s preferred place is described by the following 3 * 3 matrix:
+
+aba
+
+bab
+
+aba
+
+and that Aragorn’s map looks something like this:
+
+aababa
+
+ababab
+
+bababa
+
+ababab
+
+ababab
+
+bababa
+
+ababab
+
+Then your program must output the following: (1,2), (1,4), (2,1), (2,3), (5,1) and (5,3), these being the upper-left corners of all places on the Dead Marshes that match Gollum’s preferred place description. If none match is found, you should output the string “NO MATCH FOUND...” without the quotes.
+
+Input
+Line 1: Two integers: N1 and N2.
+
+Lines 2… N1 + 1: A string with N2 characters as described above.
+
+Lines N1 + 2: Two integers: M1 and M2.
+
+Lines N1 + 3… N1 + M1 + 3: A string with M2 characters as described above.
+
+Restrictions
+
+
+1 ≤ N1, N2 ≤ 300
+
+1 ≤ M1 * M2 ≤ 2000
+
+N1 ≤ M1
+
+N2 ≤ M2
+
+Output
+On each line print the upper-left corner of all places that match Gollum’s preferred place description on the form “(x,y)” without the quotes, where x stands for the row and y for the column. They should be lexicographically sorted, i.e. imagine them as an ordered pair. Then (x1,y1) < (x2,y2) if and only if x1 < x2 or, if they are equal, y1 < y2.
+
+Example
+Input:
+3 3
+
+aba
+
+bab
+
+aba
+
+7 6
+
+aababa
+
+ababab
+
+bababa
+
+ababab
+
+ababab
+
+bababa
+
+ababab
+
+
+Output:
+(1,2)
+
+(1,4)
+
+(2,1)
+
+(2,3)
+
+(5,1)
+
+(5,3)
+*/
+
+//HASH 2D Probado en The hunt for Gollum 
+ 
+#include <bits/stdc++.h>
+ 
+using namespace std;
+ 
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+#define ull unsigned long long
+#define bi pair<int, int>
+ 
+const ull base = 311;
+const int maxn = 2e3  + 5;
+ 
+ull TH[maxn][maxn];
+ull P[maxn * maxn];
+ 
+int main()
+{
+    ios_base::sync_with_stdio(0); cin.tie(0);
+ 
+    ull H = 0;
+ 
+    P[0] = 1;
+    cik(i, 1, maxn * maxn - 5, 1) P[i] = P[i - 1] * base;
+ 
+    
+    //MATRIZ A BUSCAR 
+    int N1, M1; cin >> N1 >> M1;
+    cik(i, 1, N1, 1)
+    cik(j, 1, M1, 1){
+        char a; cin >> a;
+ 
+        H = H * base + (ull)(a );
+    }
+ 
+    int N2, M2; cin >> N2 >> M2;
+ 
+    //MATRIZ EN DONDE BUSCAR EL PATRON
+    cik(i, 1, N2, 1)
+    cik(j, 1, M2, 1){
+        char a; cin >> a;
+        TH[i][j] = TH[i][j - 1] * base + (ull)(a );
+    }
+ 
+    vector<bi > V;
+    cik(j, M1, M2, 1){
+        ull H2 = 0;
+        cik(i, 1, N1, 1){
+            H2 *= P[M1];
+            H2 += TH[i][j] - TH[i][j - M1] * P[M1];
+        }
+ 
+        //ENCONTRE PATRON
+        if(H2 == H){
+            V.push_back(bi(1, j - M1 + 1));
+        }
+ 
+        cik(i, N1 + 1, N2, 1){
+            ull aux = TH[i - N1][j] - TH[i - N1][j - M1] * P[M1];
+ 
+            H2 -= aux * P[(N1-1)*M1];
+ 
+            H2 *= P[M1];
+            H2 += TH[i][j] - TH[i][j - M1] * P[M1];
+ 
+            
+            //ENCONTRE PATRON
+            if(H2 == H){
+                V.push_back(bi(i - N1 + 1, j - M1 + 1));
+            }
+        }
+ 
+    }
+ 
+ 
+    if(V.size() == 0) cout << "NO MATCH FOUND...\n";
+ 
+    else{
+        sort(V.begin(), V.end());
+        cik(i, 0, V.size() - 1, 1) cout << "(" << V[i].first << "," << V[i].second << ")\n";
+    }
+    return 0;
+}
+ 
