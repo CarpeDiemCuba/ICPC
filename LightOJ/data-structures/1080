@@ -1,0 +1,181 @@
+/*
+https://lightoj.com/problem/binary-simulation
+
+Binary Simulation
+
+Given a binary number, we are about to do some operations on the number. Two types of operations can be here:
+
+I i j, inverts all the bits from i to j (inclusive).
+Q i return whether the ith bit is 0 or 1.
+The MSB (most significant bit) is the first bit (i.e. i=1). The binary number can contain leading zeroes.
+
+Input
+Input starts with an integer T (≤ 10), denoting the number of test cases.
+
+Each case starts with a line containing a binary integer having length n (1 ≤ n ≤ 105). The next line will contain an integer q (1 ≤ q ≤ 50000) denoting the number of queries.
+
+Each query will be either in the form I i j where i, j are integers and 1 ≤ i ≤ j ≤ n. Or the query will be in the form Q i where i is an integer and 1 ≤ i ≤ n.
+
+Output
+For each case, print the case number in a single line. Then for each query Q i you have to print 1 or 0 depending on the ith bit.
+
+Sample
+Input	Output
+2
+0011001100
+6
+I 1 10
+I 2 7
+Q 2
+Q 1
+Q 7
+Q 5
+1011110111
+6
+I 1 10
+I 2 7
+Q 2
+Q 1
+Q 7
+Q 5
+
+Case 1:
+0
+1
+1
+0
+Case 2:
+0
+0
+0
+1
+
+*/
+
+//By Forte11
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+#define mx(a, b) ((a) > (b) ? (a) : (b))
+
+const int maxn = 1e5 + 5;
+
+string A;
+char C[maxn];
+bool B[maxn * 4], ST[maxn * 4];
+int N;
+
+void lazy(int nod, int ini, int fin){
+    B[nod] = !B[nod];
+    if(ini == fin){
+        ST[nod] = !ST[nod];
+        return;
+    }
+
+    B[nod << 1] = !B[nod << 1];
+    B[(nod << 1) + 1] = !B[(nod << 1) + 1];
+    return;
+}
+
+void build(int nod, int ini, int fin){
+    B[nod] = false;
+
+    if(ini == fin){
+        if(A[ini] == '0'){
+            ST[nod] = false;
+        }
+        else{
+            ST[nod] = true;
+        }
+        return;
+    }
+
+    int mit = (ini + fin) >> 1;
+
+    build(nod << 1, ini, mit);
+    build((nod << 1) + 1, mit + 1, fin);
+
+    return;
+}
+
+void update(int nod, int ini, int fin, int a, int b){
+    if(ini > b || a > fin){
+        return;
+    }
+
+    if(a <= ini && fin <= b){
+        B[nod] = !B[nod];
+        return;
+    }
+
+    if(B[nod]){
+        lazy(nod, ini, fin);
+    }
+
+    int mit = (ini + fin) >> 1;
+
+    update(nod << 1, ini, mit, a, b);
+    update((nod << 1) + 1, mit + 1, fin, a, b);
+
+    return;
+}
+
+bool query(int nod, int ini, int fin, int a){
+    if(ini > a || a > fin){
+        return 0;
+    }
+    if(ini == fin && ini == a){
+        if(B[nod]){
+            lazy(nod, ini, fin);
+        }
+        return ST[nod];
+    }
+
+    if(B[nod]){
+        lazy(nod, ini, fin);
+    }
+
+    int mit = (ini + fin) >> 1;
+
+    int q1 = query(nod << 1, ini, mit, a);
+    int q2 = query((nod << 1) + 1, mit + 1, fin, a);
+    return mx(q1, q2);
+}
+
+int main()
+{
+//    ios_base::sync_with_stdio(0);
+//    cin.tie(0); cout.tie(0);
+//
+    int T; scanf("%d", &T);
+
+    cik(t, 1, T, 1){
+        //cin >> A;
+        scanf("%s", &C);
+        A = C;
+        N = A.size();
+        A = " " + A;
+
+        build(1, 1, N);
+
+        printf("Case %d:\n", t);
+
+        int O; scanf("%d", &O);
+        cik(i, 1, O, 1){
+            char op;
+            int a, b;
+            scanf("%c%c%d", &op, &op,&a);
+            if(op == 'I'){
+                scanf("%d", &b);
+                update(1, 1, N, a, b);
+            }
+            else{
+                printf("%d\n", query(1, 1, N, a));
+            }
+        }
+    }
+
+    return 0;
+}
