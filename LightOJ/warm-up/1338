@@ -1,0 +1,97 @@
+/*
+https://lightoj.com/problem/hidden-secret
+
+Hidden Secret!
+
+In this problem, you are given two names, you have to find whether one name is hidden into another. The restrictions are:
+
+You can change some uppercase letters to lower case and vice versa.
+You can add/remove spaces freely.
+You can permute the letters.
+And if both the names match exactly, then you can say that one name is hidden into another.
+
+Input
+Input starts with an integer T (≤ 100), denoting the number of test cases.
+
+Each case starts with two lines. Each line contains a name consists of upper/lower case English letters and spaces. You can assume that the length of any name is between 1 and 100(inclusive).
+
+Output
+For each case, print the case number and Yes if one name is hidden into another. Otherwise print No.
+
+Sample
+Input	Output
+3
+Tom Marvolo Riddle
+I am Lord Voldemort
+I am not Harry Potter
+Hi Pretty Roar to man
+Harry and Voldemort
+Tom and Jerry and Harry
+
+Case 1: Yes
+Case 2: Yes
+Case 3: No
+
+
+*/
+
+
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+#define ll long long
+#define ull unsigned long long
+#define bi pair<int, int>
+#define f first
+#define s second
+#define mkp make_pair
+
+const int maxn = 1e5 + 5;
+
+string f(string A){
+    int L = A.size() - 1;
+
+    cik(i, 0, L, 1){
+        if('A' <= A[i] && A[i] <='Z'){
+            A[i] -= 'A';
+            A[i] += 'a';
+        }
+    }
+    sort(A.begin(), A.end());
+
+    int K = 0;
+
+    while(A[K] == ' ')K++;
+
+    return A.substr(K);
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0); cout.tie(0);
+
+//    freopen(".in", "r", stdin);
+//    freopen(".out", "w", stdout);
+
+    int T; cin >> T;
+
+    string A, B;
+        getline(cin, A);
+
+    cik(t, 1, T, 1){
+        getline(cin, A);
+        getline(cin, B);
+
+        A = f(A);
+        B = f(B);
+
+        cout << "Case " << t << ": ";
+        cout << (A==B ? "Yes" : "No") << "\n";
+    }
+
+    return 0;
+}
