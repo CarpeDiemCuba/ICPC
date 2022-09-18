@@ -1,0 +1,99 @@
+/*
+https://lightoj.com/problem/substring-frequency
+
+Substring Frequency
+
+A string is a finite sequence of symbols that are chosenfrom an alphabet. In this problem you are given two non-empty strings A and B, both contain lower case English alphabets. You have to find thenumber of times B occurs as a substring of A.
+
+Input
+Input starts with an integer T (≤ 5),denoting the number of test cases.
+
+Each case starts with two lines. First line contains A and second line contains B. You can assume than 1 ≤ length(A),length(B) ≤ 106.
+
+Output
+For each case, print the case number and the number of times B occurs as a substring of B.
+
+Sample
+Input	Output
+4
+axbyczd
+abc
+abcabcabcabc
+abc
+aabacbaabbaaz
+aab
+aaaaaa
+aa
+
+Case 1: 0
+Case 2: 4
+Case 3: 2
+Case 4: 5
+*/
+
+//By Forte11
+#include<bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+
+const int maxn = 1e6 + 5;
+
+int lps[maxn];
+
+string A, B;
+
+void pre_KMP(){
+    int len = 0;
+
+    cik(i, 1, B.size() - 1, 0){
+        if(B[i] == B[len]){
+            len++;
+            lps[i] = len;
+            i++;
+        }else{
+            if(len) len = lps[len - 1];
+            else lps[i] = 0, i++;
+        }
+    }
+    return;
+}
+
+int KMP(){
+    int pos = 0, Sol = 0;
+    cik(i, 0, A.size() - 1, 0){
+        if(A[i] == B[pos]){
+            pos++;
+            i++;
+        }
+        if(pos == B.size()){
+            Sol++;
+            pos = lps[pos - 1];
+        }
+        else if(i < A.size() && A[i] != B[pos]){
+            if(pos) pos = lps[pos - 1];
+            else i++;
+        }
+
+    }return Sol;
+}
+
+int main()
+ {
+	ios_base::sync_with_stdio(0);
+	cin.tie(0); cout.tie(0);
+
+	int N; cin >> N;
+
+	cik(i, 1, N, 1){
+	    cin >> A >> B;
+
+	    pre_KMP();
+
+	    cout << "Case " << i << ": " << KMP() << "\n";
+        memset(lps, 0, sizeof(lps));
+	}
+
+	return 0;
+}
