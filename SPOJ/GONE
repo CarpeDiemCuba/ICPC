@@ -1,0 +1,141 @@
+/*
+https://www.spoj.com/problems/GONE/
+
+GONE - G-One Numbers
+#dynamic-programming
+
+The War of Evil vs Good continues and Ra-One and G-One continue to be on respective sides.
+
+After saving all the cities with Ra-One Numbers G-One realised that some cities whose population is a "G-One Number" can be easy target for Ra-One.
+
+A G-One number is a number sum of whose digits is a prime number
+
+For eg. 12 .. sum = 1+2 =3 ... 3 is a prime number.
+
+G-One wants to find out all the populations which can be g-One numbers....
+
+Can You help him.?
+
+You will be given the range of population and you have to tell him how many in this range are G-One Numbers.
+
+Input
+first line has number 'c' indicating the number of ranges.
+
+'c' lines follow and contain two numbers ... 'f' and 't' inclusive.
+
+Output
+Print a single line per case giving the number of populations which are G-One numbers.
+
+Example
+Input:
+3
+10 19
+1 9
+20 29
+
+Output:
+4
+4
+5
+
+*/
+
+
+#include <bits/stdc++.h>
+ 
+using namespace std;
+ 
+#define int long long
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+ 
+const int maxn = 1e8 + 5;
+const int maxm = 1e4 + 5;
+const int mod = 1000000007;
+int dp[20][200];
+bool B[20][200];
+bool Criba[maxn];
+ 
+set<int> primos;
+void crearcriba(){
+	int w[] = {4,2,4,2,4,6,2,6};
+	for(int p=25;p<=maxm;p+=10) Criba[p]=5;
+	for(int p=9;p<=maxm;p+=6) Criba[p]=3;
+	for(int p=4;p<=maxm;p+=2) Criba[p]=2;
+	for(int p=7,cur=0;p*p<=maxm;p+=w[cur++&7]) if (!Criba[p])
+		for(int j=p*p;j<=maxm;j+=(p<<1)) if(!Criba[j]) Criba[j]=p;
+}
+void buscarprimos(){
+	crearcriba();
+	cik(i,2,maxm - 5, 1) if (!Criba[i]) primos.insert(i);
+}
+ 
+bool is_prime(int a){
+    if(a == 0 || a == 1) return false;
+    if(a <= maxm - 5){
+        return (primos.find(a) != primos.end());
+    }
+    for(set<int>:: iterator it = primos.begin(); it != primos.end(); it++){
+        int p = *it;
+        if(a % p == 0){
+            return false;
+        }
+    }return true;
+}
+ 
+int calc_dp(int dig, int sum){
+    if(dig == 0){
+        return is_prime(sum);
+    }
+    if(B[dig][sum]){
+        return dp[dig][sum];
+    }
+ 
+    B[dig][sum] = true;
+    dp[dig][sum] = 0;
+    cik(i, 0, 9, 1){
+        dp[dig][sum] += calc_dp(dig - 1, sum + i);
+    }return dp[dig][sum];
+}
+ 
+int solve_dp(string num){
+    int Tot = 0, Sum = 0;
+ 
+    cik(i, 0, num.size() - 1, 1){
+        int val = num[i] - '0' ;
+        cik(j, 0, val - 1, 1){
+            Tot += calc_dp(num.size() - i - 1, Sum + j);
+        }
+        Sum += val;
+    }
+    return Tot;
+}
+ 
+string a_string(int a){
+    string Sol = "";
+ 
+    while(a){
+        Sol += (a % 10) + '0'; a /= 10;
+    }reverse(Sol.begin(), Sol.end()); return Sol;
+}
+ 
+main()
+{
+    ios_base::sync_with_stdio(0); cin.tie(0);
+ 
+//    freopen(".in", "r", stdin);
+//    freopen(".out", "w", stdout);
+ 
+        buscarprimos();
+ 
+    int T; cin >> T;
+ 
+    cik(t, 1, T, 1){
+        int a, b; cin >> a >> b;
+ 
+        cout << solve_dp(a_string(max(a, b) + 1)) - solve_dp(a_string(min(a, b))) << "\n";
+ 
+    }
+ 
+    return 0;
+}
+ 
