@@ -1,0 +1,136 @@
+/*
+https://www.spoj.com/problems/DISUBSTR/
+
+
+DISUBSTR - Distinct Substrings
+#suffix-array-8
+
+Given a string, we need to find the total number of its distinct substrings.
+
+Input
+T- number of test cases. T<=20;
+Each test case consists of one string, whose length is <= 1000
+
+Output
+For each test case output one number saying the number of distinct substrings.
+
+Example
+Sample Input:
+2
+CCCCC
+ABABA
+
+Sample Output:
+5
+9
+
+Explanation for the testcase with string ABABA:
+len=1 : A,B
+len=2 : AB,BA
+len=3 : ABA,BAB
+len=4 : ABAB,BABA
+len=5 : ABABA
+Thus, total number of distinct substrings is 9.
+*/
+
+/*
+#STRING 
+Solution with Hash Table, Suffix Arrays and Binary Search 
+*/
+
+#include <bits/stdc++.h>
+ 
+using namespace std;
+ 
+#define ull unsigned long long
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+ 
+const int maxn = 1e6 + 5;
+const ull base = 311;
+ 
+ull TH[maxn];
+ull P[maxn];
+int SA[maxn], LCP[maxn];
+ 
+string A;
+int len;
+ 
+void calc_pot(){
+    P[0] = 1;
+    for(int i = 1; i <= maxn - 5; i++){
+        P[i] = P[i - 1] * base;
+    }
+    return;
+}
+ 
+int bb(int a, int b){
+    int ini = 0, fin = len - max(a, b) - 2;
+    while(fin - ini > 1){
+        int mit = (ini + fin) >> 1;
+        if(TH[a + mit] - TH[a - 1] * P[mit] == TH[b + mit] - TH[b - 1] * P[mit]){
+            ini = mit + 1;
+        }else{
+            fin = mit;
+        }
+    }
+ 
+    while(A[a + ini] == A[b + ini]){
+        ini++;
+    }
+    return ini;
+}
+ 
+int cmp2(int a, int b){
+    int pos = bb(a, b);
+    return pos ;
+}
+ 
+bool cmp1(int a, int b){
+    int pos = bb(a, b);
+ 
+    bool flag = A[a + pos] < A[b + pos];
+    return flag;
+}
+ 
+int main()
+{
+    ios_base::sync_with_stdio(0); cin.tie(0);
+ 
+//    freopen(".in", "r", stdin);
+ 
+    calc_pot();
+ 
+    int T; cin >> T;
+ 
+    for(int t = 1; t <= T; t++){
+        cin >> A;
+ 
+        A = '$' + A + '$';
+ 
+        len = A.size();
+        long long sol = (long long)(len - 2) * (long long)(len - 1) / 2;
+ 
+ 
+        for(int i = 1; i < len; i++){
+            TH[i] = TH[i - 1] * base + (ull)(A[i]);
+        }
+        for(int i = 1; i < len; i++){
+            SA[i] = i;
+        }
+ 
+        sort(SA + 1, SA + len, cmp1);
+ 
+        for(int i = 1; i < len - 1; i++){
+            LCP[i] = cmp2(SA[i], SA[i + 1]);
+        }
+ 
+        for(int i = 2; i < len - 1; i++){
+            sol -= LCP[i] ;
+        }
+ 
+        cout << sol << "\n";
+    }
+    return 0;
+}
+ 
+
