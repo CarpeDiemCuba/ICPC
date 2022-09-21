@@ -1,0 +1,164 @@
+/*
+Factors and Multiples
+
+You will be given two sets of integers. Let's call them set A and set B. Set A contains n elements and set B contains m elements. You have to remove k1 elements from set A and k2 elements from set B so that of the remaining values, no integer in set B is a multiple of any integer in set A. k1 should be in the range [0, n] and k2 in the range [0, m].
+
+You have to find the value of (k1 + k2) such that (k1 + k2) is as small as possible. P is a multiple of Q if there is some integer K such that P = K * Q.
+
+Suppose set A is {2, 3, 4, 5} and set B is {6, 7, 8, 9}. By removing {2, 3} from A and {8} from B, we get the sets {4, 5} and {6, 7, 9}. Here none of the integers 6, 7 or 9 is a multiple of 4 or 5.
+
+So for this case, the answer is 3 (two from set A and one from set B).
+
+Input
+Input starts with an integer T (≤ 50), denoting the number of test cases.
+
+The first line of each case starts with an integer n followed by n positive integers. The second line starts with m followed by m positive integers. Both n and m will be in the range [1, 100]. Each element of the two sets will fit in a 32 bit signed integer.
+
+Output
+For each case of input, print the case number and the result.
+
+Sample
+Input	Output
+2
+4 2 3 4 5
+4 6 7 8 9
+3 100 200 300
+1 150
+
+Case 1: 3
+Case 2: 0
+*/
+//Bipartite Matching hopcroft_karp
+//By Forte11
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+
+const int
+    maxn = 5e2 + 5,
+    nil = 0,
+    oo = (1 << 28);
+
+int SA[maxn], SB[maxn], mm[maxn * 2], d[maxn * 2];
+
+vector<int> Adlist[maxn * 2];
+
+int A, B;
+
+bool bfs(){
+    int i, u, v, len;
+
+    queue<int> Q;
+
+    for(i = 1; i <= A; i++){
+        if(mm[i] == nil){
+            d[i] = 0;
+            Q.push(i);
+        }
+        else{
+            d[i] = oo;
+        }
+    }
+    d[nil] = oo;
+
+    while(!Q.empty()){
+        u = Q.front();
+        Q.pop();
+
+        if(u != nil){
+            len = Adlist[u].size() - 1;
+
+            for(i = 0; i <= len; i++){
+                v = Adlist[u][i];
+                if(d[mm[v]] == oo){
+                    d[mm[v]] = d[u] + 1;
+                    Q.push(mm[v]);
+                }
+            }
+        }
+    }
+    return (d[nil] != oo);
+}
+
+bool dfs(int u){
+    int i, v, len;
+    if(u != nil){
+        len = Adlist[u].size() - 1;
+        for(i = 0; i <= len; i++){
+            v = Adlist[u][i];
+            if(d[mm[v]] == d[u] + 1){
+                if(dfs(mm[v])){
+                    mm[v] = u;
+                    mm[u] = v;
+                    return true;
+                }
+            }
+        }
+        d[u] = oo;
+        return false;
+    }
+    return true;
+}
+
+int hopcroft_karp(){
+    int matching = 0, i;
+
+    while(bfs()){
+        for(i = 1; i <= A; i++){
+            if(mm[i] == nil && dfs(i)){
+                matching++;
+            }
+        }
+    }
+    return matching++;
+}
+
+void clean(){
+    cik(i, 0, A + B, 1){
+        Adlist[i].clear();
+        SA[i] = 0; SB[i] = 0;
+        mm[i] = 0; d[i] = 0;
+    }
+    return;
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0); cout.tie(0);
+
+//    freopen(".in", "r", stdin);
+//    freopen(".out", "w", stdout);
+
+    int T; cin >> T;
+
+    cik(t, 1, T, 1){
+        cin >> A;
+        cik(i, 1, A, 1){
+            cin >> SA[i];
+        }
+        cin >> B;
+        cik(i, 1, B, 1){
+            cin >> SB[i];
+        }
+
+        cik(i, 1, A, 1){
+            cik(j, 1, B, 1){
+                if(!(SB[j] % SA[i])){
+                    Adlist[i].push_back(j + A);
+                    Adlist[j + A].push_back(i);
+                }
+            }
+        }
+
+        int Sol = hopcroft_karp();
+
+        cout << "Case " << t << ": " << Sol << "\n";
+        clean();
+    }
+    return 0;
+}
+
+     
