@@ -1,0 +1,82 @@
+/*
+https://matcomgrader.com/problem/6/fito-el-hacker/
+
+Fito es uno de los mejores hackers del mundo. Él tiene un algoritmo de análisis de frecuencias que es capaz de romper cualquier mensaje cifrado.
+
+Un mensaje consiste en una secuencia de N valores menores o iguales que C. Su algoritmo consiste en ordenar la secuencia de forma tal que: X aparece antes que Y si el número de veces que aparece X en la secuencia es mayor que el número de veces que aparece Y.
+
+Además si dos números aparecen la misma cantidad de veces, el que primero aparece en la secuencia original es el que debe ir antes. Como usted quiere ser un hacker en el futuro debe seguir los pasos de Fito e implementar dicho algoritmo.
+
+Input
+Línea 1 : La primera línea de la entrada contiene dos enteros 1≤N≤1000, la longitud del mensaje y 1≤C≤109.
+Línea 2 : La siguiente línea contiene N enteros no negativos menores que C, que son los números de la secuencia.
+
+Output
+Línea 1 : La secuencia ordenada (los números en una línea separados por espacio).
+
+Sample test(s)
+input
+5 2
+2 1 2 1 2
+output
+2 2 2 1 1
+input
+10 100
+88 99 1 99 99 1 81 99 81 88
+output
+99 99 99 99 88 88 1 1 81 81
+
+*/
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+typedef pair<int, int> pii;
+typedef map<int, int>::iterator mapit;
+typedef map<pii, int>::iterator tit;
+
+int N, C;
+map<pii, int> M;
+map<int, int> F; //freq
+map<int, int> PO; //primera ocurrencia
+
+int main()
+{
+    cin >> N >> C;
+    for (int i = 1 ; i <= N ; i++){
+        int x;
+        cin >> x;
+        if (F.find(x) == F.end()){
+            F[x] = -1;
+            PO[x] = i;
+        }
+        else
+            F[x]--;
+    }
+
+    for(mapit it = F.begin() ; it != F.end() ; it++){
+        int freq = (*it).second;
+        int x = (*it).first;
+        int po = PO[x];
+        M[make_pair(freq, po)] = x;
+    }
+
+    bool pp = true;
+    for (tit it = M.begin() ; it != M.end() ; it++){
+        int freq = -(*it).first.first;
+        int x = (*it).second;
+        for (int i = 0 ; i < freq ; i++){
+            if (pp){
+                cout << x;
+                pp = false;
+            }
+            else
+                cout << ' ' << x;
+        }
+    }
+
+    return 0;
+}
+
+
