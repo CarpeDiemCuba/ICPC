@@ -1,0 +1,52 @@
+/*
+https://matcomgrader.com/problem/9279/assigning-teams/
+
+Four friends are playing table tennis. Each of them has a skill level which is represented by an integer number: the higher the number, the better the player is.
+
+The four friends want to form two teams of two players each. For the game to be more exciting, they want the skill level of the teams to be as close as possible. The skill level of a team is the sum of the skill levels of the players in that team.
+
+Although they are very good table tennis players, these friends are not so good at other things, like Math or Computing. Can you help them find the smallest possible difference between the teams' skill levels?
+Input
+Four integers A, B, C and D, representing the skill levels of the four players (0≤A≤B≤C≤D≤104).
+Output
+The smallest difference between the skill levels for both teams.
+
+Sample test(s)
+input
+4 7 10 20
+output
+7
+input
+0 0 1 1000
+output
+999
+input
+1 2 3 4
+output
+0
+
+*/
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+
+int A[5];
+
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0); cout.tie(0);
+
+    cik(i, 1, 4, 1){
+        cin >> A[i];
+    }
+
+    sort(A + 1, A + 5);
+
+    cout << abs((A[4] + A[1]) - (A[3] + A[2])) << "\n";
+
+    return 0;
+}
