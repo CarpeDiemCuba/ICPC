@@ -1,0 +1,76 @@
+/*
+https://matcomgrader.com/problem/9480/un-tren-con-dos-destinos/
+
+En un almacén de suministros se tiene un tren listo para partir con todos sus vagones llenos de materias primas. Estas han de ser entregadas en dos fábricas ubicadas en distintos lugares del país. El tren normalmente va con todos los vagones hasta un punto equidistante de ambas fábricas donde deja su carga y luego vuelve al almacén. En ese punto los vagones se dividen en dos conjuntos y dos trenes más pequeños se  los llevan a su destino final. El problema ahora es que al ser más pequeños este par de trenes, entonces es posible que no todos los vagones puedan ser llevados en un viaje a las fábricas desde el punto donde los dejó el primer tren, lo que termina generando una situación incómoda. Es fácil entender que si se deja algún vagón esperando por un viaje futuro,  entonces se entorpecería el tráfico en ese punto del recorrido y además los vagones pudieran resultar blanco de potenciales ilegalidades.
+
+El objetivo en este problema consiste en escoger la mayor cantidad de vagones para trasladar en el primer tren, de forma tal que sea posible dividirlo en dos conjuntos que puedan ser llevados cada uno por un tren pequeño. Como las dos industrias son de igual importancia los dos conjuntos deben tener la misma cantidad de vagones, aunque tengan peso total distinto (por ejemplo si tienen distintos materiales dentro). Dado que no se tiene mucho tiempo para escoger los vagones al inicio entonces los que se hace es separar uno de los vagones del resto, de esta forma el tren solo se lleva los vagones que están antes del que es separado y el resto se queda en el almacén bien vigilado.
+Input
+La primera línea contiene dos enteros n (1≤n≤50) y W (1≤W≤5000) que representan respectivamente la cantidad de vagones y el mayor peso que puede transportar un tren pequeño. La siguiente línea tiene n enteros separados por un espacio, donde cada uno indica el peso de un vagón. El valor de cada peso es un entero menor o igual a 700 y se dan en el orden que aparecen inicialmente al salir y antes de la separación que se menciona al final del problema.
+Output
+La salida es una única línea con la mayor cantidad de vagones que es posible transportar hacia las fábricas, respetando las exigencias planteadas.
+
+Sample test(s)
+input
+5 10 
+6 6 5 3 3 
+output
+2
+*/
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+const int MAXN = 55;
+const int MAXM = 5005;
+
+bool dp[MAXN][MAXM];
+
+int n, k, w[MAXN], sum[MAXN];
+
+bool check(int c) {
+    if(!c)return 1;
+
+    int l = c * 2;
+    memset(dp, 0, sizeof(dp));
+
+    dp[0][0] = 1;
+
+    for(int i = 1; i <= l; i++)
+        for(int j = c; j >= 1; j--)
+            for(int x = w[i]; x <= k; x++)
+                dp[j][x] |= dp[j-1][x - w[i]];
+
+    int s = sum[l];
+    for(int i = 1; i <= k && i <= s; i++)
+        if(dp[c][i] && s - i <= k)
+            return 1;
+    return 0;
+}
+
+int main() {
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+
+    cin >> n >> k;
+    for(int i = 1; i <= n; i++)
+        cin >> w[i], sum[i] = sum[i-1] + w[i];
+
+    int top = n / 2;
+    n = top * 2;
+    int ini = 0, fin = top, mid;
+
+    while(ini < fin) {
+        mid = (ini + fin + 1) / 2;
+        if(check(mid))
+            ini= mid;
+        else
+            fin = mid - 1;
+    }
+
+    cout << ini * 2 << "\n";
+}
+/*
+5 10
+6 6 5 3 3
+*/
