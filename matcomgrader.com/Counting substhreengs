@@ -1,0 +1,71 @@
+/*
+https://matcomgrader.com/problem/9305/counting-substhreengs/
+
+Substrings are strings formed by choosing a subset of contiguous characters from a string. This is well known. A little more obscure is the definition of substhreengs. A substhreeng is a substring which complies to the following additional requirements:
+
+1. It is non-empty, and composed entirely of base 10 digits.
+2. Interpreted in base 10 (allowing extra leading zeros), the resulting integer is a multiple of 3.
+
+For instance, the string 130a303 contains 9 substhreengs: the substhreeng 3 three times, the substhreengs 30 and 0 twice each, and the substhreengs 303 and 03 once each. The substring 30a3 is not a substhreeng because it is not composed entirely of base 10 digits, while the substring 13 is not a substhreeng because 13 is not a multiple of 3.
+
+Notice that two substhreengs are considered different if they are different in length or start at a different position, even if the selected characters are the same.
+
+Given a string, you are asked to count the number of substhreengs it contains.
+Input
+The input consists of a single line that contains a non-empty string S of at most 106 characters. Each character of S is either a digit or a lowercase letter.
+Output
+Output a line with an integer representing the number of substhreengs contained in S.
+
+Sample test(s)
+input
+130a303
+output
+9
+input
+0000000000
+output
+55
+input
+icpc2014regional
+output
+2
+
+*/
+
+//By Forte11
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+#define ll long long
+
+ll TA[5];
+
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+
+    string A; cin >> A;
+    int lon = A.size() - 1;
+    ll sol = 0;
+    cik(i, 0, lon, 1){
+        int n = 0;
+        TA[0] = 1;
+        while('0' <= A[i] && A[i] <= '9'){
+            n += A[i] - '0';
+            n %= 3;
+            sol += TA[n];
+            TA[n]++;
+            i++;
+        }
+        cik(i, 0, 3, 1){
+            TA[i] = 0;
+        }
+    }
+
+    cout << sol << "\n";
+
+    return 0;
+}
