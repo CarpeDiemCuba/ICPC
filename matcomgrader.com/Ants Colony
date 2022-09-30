@@ -1,0 +1,182 @@
+/*
+https://matcomgrader.com/problem/9366/ants-colony/
+
+A group of ants is really proud because they built a magnificent and large colony. However, the enormous size has become a problem, because many ants do not know the path between some parts of the colony. They desperately need your help!
+
+The colony of ants was made as a series of N anthills, connected by tunnels. The ants, obsessive as they are, numbered the anthills sequentially as they built them. The first anthill, numbered 0, did not require any tunnel, but for each of the subsequent anthills, 1 through N−1, the ants also built a single tunnel that connected the new anthill to one of the existing anthills. Of course, this tunnel was enough to allow any ant to go to any previously built anthill, possibly passing through other anthills in its path, so they did not bother making extra tunnels and continued building more anthills.
+
+Your job is, given the structure of the colony and a set of queries, calculate for each query the shortest path between pairs of anthills. The length of a path is the sum of the lengths of all tunnels that need to be traveled.
+Input
+Each test case is given using several lines. The first line contains an integer N representing the number of anthills in the colony (2≤N≤105). Each of the next N−1 lines contains two integers that describe a tunnel. Line i, for 1≤i≤N−1, contains Ai and Li , indicating that anthill i was connected directly to anthill Ai with a tunnel of length Li (0≤Ai≤i−1 and 1≤Li≤109). The next line contains an integer Q representing the number of queries that follow (1≤Q≤105). Each of the next Q lines describes a query and contains two distinct integers S and T (0≤S,T≤N−1), representing respectively the source and target anthills.
+
+The last test case is followed by a line containing one zero.
+Output
+For each test case output a single line with Q integers, each of them being the length of a shortest path between the pair of anthills of a query. Write the results for each query in the same order that the queries were given in the input.
+Sample test(s)
+input
+6
+0 8
+1 7
+1 9
+0 3
+4 2
+4
+2 3
+5 2
+1 4
+0 3
+2
+0 1
+2
+1 0
+0 1
+6
+0 1000000000
+1 1000000000
+2 1000000000
+3 1000000000
+4 1000000000
+1
+5 0
+0
+output
+16 20 11 17
+1 1
+5000000000
+*/
+
+//By Forte11
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+#define acik(i, a, b, c) for(int i =(a); i >=(b); i -=(c))
+#define ll long long
+#define bi pair<int, int>
+#define f first
+#define s second
+#define mkp make_pair
+
+const int maxn = 1e5 + 5;
+const int maxm = log2(maxn);
+
+vector<bi > Adlist[maxn];
+int LCA[maxn][maxm], Level[maxn];
+ll C[maxn];
+
+int N;
+
+void build_LCA(){
+    queue<int> q;
+    q.push(0);
+
+    Level[0] = 1;
+
+    while(!q.empty()){
+        int nod = q.front();
+        q.pop();
+
+        int lon = Adlist[nod].size() - 1;
+
+        cik(i, 0, lon, 1){
+            int nn = Adlist[nod][i].f;
+            ll ncost = Adlist[nod][i].s;
+
+            if(Level[nn]){
+                continue;
+            }
+
+            q.push(nn);
+
+            Level[nn] = Level[nod] + 1;
+            C[nn] = C[nod] + ncost;
+
+            int LG = log2(Level[nn]);
+
+            LCA[nn][0] = nod;
+            cik(k, 1, LG, 1){
+                if(LCA[nn][k - 1]){
+                    LCA[nn][k] = LCA[LCA[nn][k - 1]][k - 1];
+                }
+            }
+        }
+    }
+    return;
+}
+
+int find_LCA(int a, int b){
+    if(Level[a] < Level[b]){
+        swap(a, b);
+    }
+
+    int LG = log2(Level[a]);
+    acik(k, LG, 0, 1){
+        if(Level[a] - (1 << k) >= Level[b]){
+            a = LCA[a][k];
+        }
+    }
+
+    if(a == b){
+        return a;
+    }
+
+    LG = log2(Level[a]);
+
+    acik(k, LG, 0, 1){
+        if(LCA[a][k] != LCA[b][k] && LCA[a][k]){
+            a = LCA[a][k];
+            b = LCA[b][k];
+        }
+    }
+
+    return LCA[a][0];
+}
+
+void clean(){
+    cik(i, 0, N, 1){
+        Adlist[i].clear();
+        Level[i] = C[i] = 0;
+        cik(j, 0,log2(N), 1){
+            LCA[i][j] = 0;
+        }
+    }
+    return;
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+
+    while(cin >> N){
+        if(!N){
+            break;
+        }
+
+        cik(i, 1, N - 1, 1){
+            int father, cost; cin >> father >> cost;
+            Adlist[i].push_back(mkp(father, cost));
+            Adlist[father].push_back(mkp(i, cost));
+        }
+
+        build_LCA();
+
+        int Qu; cin >> Qu;
+        cik(i, 1, Qu, 1){
+            int a, b; cin >> a >> b;
+
+            int lca = find_LCA(a, b);
+
+            if(i != 1){
+                cout << " ";
+            }
+            cout << C[a] + C[b] - (C[lca] << 1);
+        }
+        cout << "\n";
+
+        clean();
+    }
+
+    return 0;
+}
