@@ -1,0 +1,92 @@
+/*
+https://matcomgrader.com/problem/9227/kings-heir/
+
+The king is dead, long live the king! After the sudden death of the king Fert XIII the people of the Flatland Kingdom are going to welcome the new king. Unfortunately, there is a problem, Fert has too many sons.
+
+Actually, he has n sons and he loved each new son more than all of his previous sons. Well, probably he just stopped loving his sons because of their bad behavior. Anyway, after the new son was born Fert made the new testament that declared that the newly born son would be the heir.
+
+However, there is a problem. Only the king's son who is at least 18 years old at the moment of the king's death can become a new king. Now the ministers of the government are trying to find the correct new king, but they seem to fail. Help them!
+Input
+The first line of the input contains three integers: d, m and y — the day, the month and the year of the king's death, d is from 1 to 31, m is from 1 to 12, y is from 1 to 9999. It is guaranteed that there exists day d in month m, all months have the same number of days in Flatland as in our country, except that Flatland calendar doesn't have leap years, so February (month 2) always has 28 days.
+
+The second line contains n (1≤n≤100) — the number of king's sons. The following n lines contain three integers each di, mi and yi and specify the birth dates of king's sons. All dates are correct and no son is born after or on the day of king's death. The king had no twins, so no two sons were born on the same date.
+Output
+Output one integer — the number of the son that would become the king, or −1 if none of them is at least 18 years old. The sons are numbered from 1 to n in order they are described in the input. The youngest son who is at least 18 years old at the moment of the king's death would become the king. If the son has his 18th birthday exactly on the day of the king's death, he can become a king.
+Sample test(s)
+input
+22 10 2016
+7
+28 2 1999
+22 7 1995
+21 10 1998
+23 10 1998
+3 9 2000
+1 4 2013
+17 12 2004
+output
+3
+input
+22 10 2016
+1
+28 2 1999
+output
+-1
+
+
+*/
+
+
+//By Forte11
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+#define ull unsigned long long
+
+const int maxn = 13;
+
+int TA[maxn];
+
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0); cout.tie(0);
+
+    cik(i, 1, 12, 1){
+        if(i != 2){
+            TA[i] = TA[i - 1] + 31;
+        }
+        else{
+            TA[i] = TA[i - 1] + 28;
+        }
+    }
+
+    ull dia, mes, anho; cin >> dia >> mes >> anho;
+    ull fecha = (anho - 1) * TA[12] + TA[mes - 1] + dia;
+
+    int N; cin >> N;
+
+    ull Sol = 1e18, may = 1e18;
+
+    cik(i, 1, N, 1){
+        cin >> dia >> mes >> anho;
+        ull new_f = (anho - 1) * TA[12] + TA[mes - 1] + dia;
+
+        if(fecha - new_f >= 18 * TA[12]){
+            if(Sol > fecha - new_f){
+                Sol = fecha - new_f;
+                may = i;
+            }
+        }
+    }
+
+    if(may != 1e18){
+        cout << may << "\n";
+    }
+    else{
+        cout << "-1\n";
+    }
+
+    return 0;
+}
