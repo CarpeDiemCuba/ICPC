@@ -1,0 +1,99 @@
+/*
+https://lightoj.com/problem/palindrome-partitioning
+
+A palindrome partition is the partitioning of a string such that each separate substring is a palindrome.
+
+For example, the string ABACABA can be partitioned in several different ways. A few are: {A, B, A, C, A, B, A} or {A, BACAB, A} or {ABACABA} or {ABA, C, ABA} among many other solutions.
+
+You are given a string s. Return the minimum possible number of substrings in a palindrome partition of s.
+
+Input
+Input starts with an integer T (≤ 40), denoting the number of test cases.
+
+Each case begins with a non-empty string s of uppercase letters with length no more than 1000.
+
+Output
+For each case of input you have to print the case number and the desired result.
+
+Sample
+Input	Output
+3
+AAAA
+ABCDEFGH
+QWERTYTREWQWERT
+
+Case 1: 1
+Case 2: 8
+Case 3: 5
+*/
+
+
+//By Forte11
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+#define mn(a, b) ((a) < (b) ? (a) : (b))
+
+const int maxn = 1e3 + 5;
+
+bool B[maxn][maxn];
+int dp[maxn];
+
+string a;
+int lon;
+
+void clean(){
+    cik(i, 1, lon, 1){
+        dp[i] = 0;
+        cik(j, 0, lon, 1){
+            B[i][j] = false;
+        }
+    }
+    return;
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+
+    int T; cin >> T;
+    cik(t, 1, T, 1){
+        cin >> a;
+
+        lon = a.size();
+        a = " " + a;
+
+        cik(i, 1, lon, 1){
+            B[i][0] = true;
+
+            if(a[i] == a[i + 1]){
+                B[i][1] = true;
+            }
+        }
+
+        cik(j, 2, lon, 1){
+            cik(i, 1, lon - j, 1){
+                if(a[i] == a[i + j] && B[i + 1][j - 2]){
+                    B[i][j] = true;
+                }
+            }
+        }
+
+        cik(i, 1, lon, 1){
+            dp[i] = i;
+            for(int j = i; j > 0; j--){
+                if(B[j][i - j]){
+                    dp[i] = mn(dp[i], dp[i - (i - j + 1)] + 1);
+                }
+            }
+        }
+
+        cout << "Case " << t << ": " << dp[lon] << "\n";
+
+        clean();
+    }
+    return 0;
+}
