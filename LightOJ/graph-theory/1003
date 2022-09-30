@@ -1,0 +1,128 @@
+/*
+https://lightoj.com/problem/drunk
+
+One of my friends is always drunk. So, sometimes I get a bit confused whether he is drunk or not. So, one day I was talking to him, about his drinks! He began to describe his way of drinking. So, let me share his ideas a bit. I am expressing in my words.
+
+There are many kinds of drinks, which he used to take. But there are some rules; there are some drinks that have some pre requisites. Suppose if you want to take wine, you should have taken soda, water before it. That's why to get real drunk is not that easy.
+
+Now given the name of some drinks! And the prerequisites of the drinks, you have to say that whether it's possible to get drunk or not. To get drunk, a person should take all the drinks.
+
+Input
+Input starts with an integer T (≤ 50), denoting the number of test cases.
+
+Each case starts with an integer m (1 ≤ m ≤ 10000). Each of the next m lines will contain two names each in the format a b, denoting that you must have a before having b. The names will be non-empty and contain at most 10 characters.
+
+Output
+For each case, print the case number and Yes or No, depending on whether it's possible to get drunk or not.
+
+Sample
+Input	Output
+2
+2
+soda wine
+water wine
+3
+soda wine
+water wine
+wine water
+
+Case 1: Yes
+Case 2: No
+*/
+
+//By Forte11
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define  cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+
+const int maxn = 2e4 + 5;
+
+vector<int > Adlist[maxn];
+int C[maxn];
+
+map<string, int> M;
+int N, Ar;
+
+queue<int> q;
+
+void clean(){
+    M.clear();
+    cik(i, 1, maxn - 5, 1){
+        Adlist[i].clear();
+        C[i] = 0;
+    }
+    return;
+}
+
+void bfs(){
+    while(!q.empty()){
+        int nod = q.front();
+        q.pop();
+        N--;
+        int lon = Adlist[nod].size() - 1;
+        cik(i, 0, lon, 1){
+            int nn = Adlist[nod][i];
+            C[nn]--;
+            if(!C[nn]){
+                q.push(nn);
+            }
+        }
+    }
+    return;
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+
+    int T; cin >> T;
+    cik(t, 1, T, 1){
+        N = 0;
+        cin >> Ar;
+
+        cik(i, 1, Ar, 1){
+            string a, b;
+            cin >> a >> b;
+            if(M.find(a) == M.end()){
+                N++;
+                M[a] = N;
+            }
+            if(M.find(b) == M.end()){
+                N++;
+                M[b] = N;
+            }
+
+            C[M[b]]++;
+
+            Adlist[M[a]].push_back(M[b]);
+        }
+
+        while(!q.empty()){
+            q.pop();
+        }
+
+        map<string, int>::iterator it;
+        for(it = M.begin(); it != M.end(); it++){
+            if(!C[M[it -> first]]){
+                q.push(it -> second);
+            }
+        }
+
+        bfs();
+
+        cout << "Case " << t << ": ";
+        if(!N){
+            cout << "Yes\n";
+        }
+        else{
+            cout << "No\n";
+        }
+
+        clean();
+    }
+
+    return 0;
+}
