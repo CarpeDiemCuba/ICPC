@@ -1,0 +1,75 @@
+/*
+https://matcomgrader.com/problem/9244/particion-en-parejas/
+
+En un concurso de la televisión se van a formar k parejas de participantes. En el concurso los participantes hacen un grupo de ejercicios en pareja, donde la altura es una parte importante de la ejecución. Para hacer el programa más interesante los organizadores forman las parejas de manera tal que la suma de las diferencias modulares de la altura de cada pareja sea máxima. Es nuestro deber averiguar dicho valor.
+Input
+La primera línea es un entero k (1≤k≤100000) la cantidad de parejas que se van a formar. La siguiente línea tiene 2∗k enteros separados por un espacio donde cada uno es la altura de cada participante. El valor de cada altura es un entero menor o igual a 109.
+Output
+La salida es una única línea con la mayor suma que es posible obtener.
+Sample test(s)
+input
+2 
+5 1 6 10
+output
+10
+*/
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+#define bi pair<int, int>
+#define f first
+#define s second
+#define mkp make_pair
+#define ll long long
+
+const int maxn = 5e5 + 5;
+ll A[maxn];
+
+//bi A[maxn];
+//
+//bool comp(bi a, bi b){
+//    if(a.f != b.f){
+//        return a.f > b.f;
+//    }
+//    return a.s < b.s;
+//}
+
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0); cout.tie(0);
+
+    int N; cin >> N;
+    N <<= 1;
+//
+//    cik(i, 1, N, 1){
+//        cin >> A[i].s >> A[i].f;
+//    }
+//
+//    sort(A + 1, A + N + 1, comp);
+//
+//    int peso = A[N].s, Sol = 0;
+//    for(int i = N - 1; i >= 1; i--){
+//        Sol = max (peso - A[i].f, Sol);
+//        peso += A[i].s;
+//    }
+//
+//    cout << Sol << "\n";
+
+    cik(i, 1, N, 1){
+        cin >> A[i];
+    }
+    sort(A + 1, A + N + 1);
+
+    ll K = N, Sol = 0;
+    cik(i, 1, N / 2, 1){
+        Sol += (A[K] - A[i]);
+        K--;
+    }
+    cout << Sol << "\n";
+
+    return 0;
+}
