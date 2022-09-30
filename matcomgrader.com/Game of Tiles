@@ -1,0 +1,214 @@
+/*
+https://matcomgrader.com/problem/9337/game-of-tiles/
+
+The Game of Tiles is a game for two players played over a rectangular board in the form of a table of R rows and C columns of square cells called tiles. At the beginning of the game, some of the tiles may be painted black and the rest remain white. Then, Player 1 and Player 2 alternate turns making a move and the first one that cannot make a valid move loses the game. The first move of the game is done by Player 1 and consists of choosing a white tile and writing the number 1 on it. After that, each subsequent move i consists of writing number i on an unused white tile that is adjacent horizontally or vertically (but not diagonally) to the tile numbered i−1. Note that Player 1 always writes odd numbers and Player 2 always writes even numbers.
+
+The following figure shows three examples of possible configurations of a board with R=3 and C=4 during a game. On the left it shows the initial configuration. On the center it shows an intermediate state, where cells in gray mark the possible moves for Player 2. And on the right it shows the configuration when the game is won by Player 2, who chose the appropriate move.
+
+Your task is to write a program that given the initial configuration of the board, determines which player will win, if both of them play optimally.
+Input
+Each test case is described using several lines. The first line contains two integers R and C representing respectively the number of rows and columns of the board (1≤R,C≤50). The i-th of the next R lines contains a string Bi of C characters that describes the i-th row of the initial board. The j-th character of Bi is either “.” (dot) or the uppercase letter “X”, representing that the tile at row i and column j is respectively white or black. Within each test case at least one of the tiles is white.
+Output
+For each test case output a line with an integer representing the number of the player (1 or 2) who will win the game if both of them play optimally.
+Sample test(s)
+input
+3 4
+....
+XX.X
+...X
+3 4
+....
+.X.X
+...X
+3 4
+....
+.X.X
+....
+1 1
+.
+1 11
+....X......
+output
+2
+1
+1
+1
+2
+*/
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+
+const int maxn = 55;
+const int maxm = 55 * 55;
+const int nil = 0;
+const int oo = (1 << 28);
+
+const int
+    df[] = {0, 1, -1, 0,  0},
+    dc[] = {0, 0,  0, 1, -1};
+
+int A[maxn][maxn], B[maxn][maxn], mm[maxm], d[maxm];
+vector<int> Adlist[maxm];
+int N, M, K;
+
+void clean(){
+    K = 0;
+
+    cik(i, 1, N, 1){
+        cik(j, 1, M, 1){
+            A[i][j] = 0;
+            B[i][j] = 0;
+        }
+    }
+
+    cik(i, 1, maxm - 5, 1){
+        Adlist[i].clear();
+        mm[i] = 0; d[i] = 0;
+    }
+    return;
+}
+
+bool bfs(){
+    int u, v, len;
+    queue<int> Q;
+    for(int i = 1; i <= N; i++){
+        for(int j = 1; j <= M; j++){
+            int b = B[i][j];
+            if(A[i][j] && b){
+                if(mm[b] == nil){
+                    d[b] = 0;
+                    Q.push(b);
+                }
+                else{
+                    d[b] = oo;
+                }
+            }
+        }
+    }
+    d[nil] = oo;
+    while(!Q.empty()){
+        u = Q.front();
+        Q.pop();
+
+        if(u != nil){
+            len = Adlist[u].size() - 1;
+            cik(i, 0, len, 1){
+                v = Adlist[u][i];
+                if(d[mm[v]] == oo){
+                    d[mm[v]] = d[u] + 1;
+                    Q.push(mm[v]);
+                }
+            }
+        }
+    }
+    return (d[nil] != oo);
+}
+
+bool dfs(int u){
+    int v, len;
+    if(u != nil){
+        len = Adlist[u].size() - 1;
+        cik(i, 0, len, 1){
+            v = Adlist[u][i];
+
+            if(d[mm[v]] == d[u] + 1){
+                if(dfs(mm[v])){
+                    mm[v] = u;
+                    mm[u] = v;
+                    return true;
+                }
+            }
+        }
+        d[u] = oo;
+        return false;
+    }
+    return true;
+}
+
+int hopcroft_karp(){
+    int matching = 0;
+    while(bfs()){
+        cik(i, 1, N, 1){
+            cik(j, 1, M, 1){
+                int b = B[i][j];
+                if(A[i][j] && b){
+                    if(mm[b] == nil && dfs(b)){
+                        matching++;
+                    }
+                }
+            }
+        }
+    }
+    return matching;
+}
+
+bool ok(int mf, int mc){
+    return (0 < mf && mf <= N && 0 < mc && mc <= M);
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0); cout.tie(0);
+
+    while(cin >> N >> M){
+        K = 0;
+
+        bool flag = false;
+        cik(i, 1, N, 1){
+            cik(j, 1, M, 1){
+                if(i == 1){
+                    flag = !flag;
+                    A[i][j] = flag;
+                }
+                else{
+                    A[i][j] = !A[i - 1][j];
+                }
+
+                char a; cin >> a;
+
+                if(a != 'X'){
+                    K++;
+                    B[i][j] = K;
+                }
+            }
+        }
+
+        cik(i, 1, N, 1){
+            cik(j, 1, M, 1){
+                if(A[i][j] && B[i][j]){
+                    int a, b;
+                    a = B[i][j];
+
+                    cik(k, 1, 4, 1){
+                        int mf = i + df[k];
+                        int mc = j + dc[k];
+
+                        if(B[mf][mc] && ok(mf, mc)){
+                            b = B[mf][mc];
+
+                            Adlist[a].push_back(b);
+                            Adlist[b].push_back(a);
+                        }
+                    }
+                }
+            }
+        }
+
+        int Sol = hopcroft_karp();
+
+        if(Sol << 1 == K){
+            cout << "2\n";
+        }
+        else{
+            cout << "1\n";
+        }
+        clean();
+    }
+
+    return 0;
+}
