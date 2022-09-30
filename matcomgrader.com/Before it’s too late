@@ -1,0 +1,64 @@
+/*
+https://matcomgrader.com/problem/9673/before-its-too-late/
+
+Last month, millions of people around the world took the streets in what could be largest environmental protest in history. Many posters had: “There is no PLANet B!” written on them.
+
+
+Fito and his friend were part of the protests because they also believe that our beautiful planet is under a huge threat. The weather is more extreme and the oceans have a lot of plastic. Moreover, industrial production, farming methods and mass deforestation have led to the extinction of many species. They know that if we continue like this, it’s almost certain that sea levels will continue to rise, there will be extreme heat-waves, loss of the polar ice caps and mass pollution; in short, a very worrying future for us all. Therefore, we need to do something before it’s too late.
+
+Fito and his friend decided to take action and will plant as many trees as they can. They have a sequence of positions {Ai} of length N where it would be nice to have a tree (there could be some repeated positions). Each position is represented by an integer that indicates the distance to the start of the street (they will plant all the trees in the same street). Your task is to help Fito and his friend to find out what is the maximum distance between any two trees they will plant.
+
+
+
+Input
+The first line of input contains the integer N (2≤N≤100). The second line contains N integers Ai (1≤Ai≤109) separated by a space that represent the positions of the trees.
+
+Output
+Print the maximum absolute difference between two positions.
+
+Sample test(s)
+input
+4
+1 4 6 3
+output
+5
+input
+2
+1000000000 1
+output
+999999999
+input
+5
+1 1 1 1 1
+output
+0
+Hints
+In the first case, the maximum absolute difference of two positions is A3−A1=6−1=5.
+*/
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+
+int main()
+{
+    ios_base::sync_with_stdio(0); cin.tie(0);
+
+//    freopen(".in", "r", stdin);
+
+    int N; cin >> N;
+
+    int maxi = 0, mini = 1e9 + 5;
+
+    cik(i, 1, N, 1){
+        int a; cin >> a;
+        maxi = max(maxi, a);
+        mini = min(mini, a);
+    }
+
+    cout << maxi - mini << "\n";
+
+    return 0;
+}
