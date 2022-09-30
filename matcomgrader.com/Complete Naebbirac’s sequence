@@ -1,0 +1,118 @@
+/*
+https://matcomgrader.com/problem/9343/complete-naebbiracs-sequence/
+
+Naebbirac is a young and easy-to-get-bored sailor. He likes sequences of integers and to come up with ways to classify them. Naebbirac says that a sequence is complete for a chosen integer K, if the sequence only contains integers between 1 and K, and each integer between 1 and K appears the same number of times.
+
+Based on that, Naebbirac created a game to entertain himself and his peers, when the waters calm down and there’s not much they can do to spend their time in the middle of the ocean.
+
+First he chooses a positive integer K and then he uses chalk to draw on the deck a sequence S having N integers between 1 and K. After that he challenges one of his peers. The goal of the challenged peer is to turn the sequence S into a complete sequence by performing exactly one of the following three
+possible operations:
+
+• “-x”: remove one occurrence of integer x from S;
+• “+x”: add a new integer with value x in S; or
+• “-x +y”: replace one occurrence of integer x from S by an integer with value y.
+
+Naebbirac is quite smart. He never writes a sequence that is already complete and often the written integers don’t follow a pattern, making it quite hard to find an operation that solves the puzzle. One of your friends, that usually sails with Naebbirac, is tired of always losing the game. Are you able to help your friend and create a computer program that can find a solution to Naebbirac’s game before they go on their next trip?
+Input
+The first line contains two integers K (3≤K≤1000) and N (1≤N≤104), indicating respectively the integer that Naebbirac chooses at the beginning of the game, and the length of the sequence written on the deck. The second line contains N integers S1,S2,...,SN (1≤Si≤K for i=1,2,...,N) representing the written sequence; you can safely assume that the sequence is not complete.
+Output
+Output a single line with the description of the operation that allows your friend to win the game or an “*” (asterisk) if there is no way to win. The description of the operation must follow the format shown on the statement, i.e. “-x”, “+x” or “-x +y”.
+Sample test(s)
+input
+3 5
+1 3 2 3 1
+output
++2
+input
+3 7
+1 2 3 3 3 2 1
+output
+-3
+input
+3 6
+3 1 2 1 3 1
+output
+-1 +2
+input
+3 6
+2 3 2 2 2 1
+output
+*
+
+*/
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+
+const int maxn = 1e4 + 5;
+
+int M[maxn];
+
+int K, N;
+
+bool ok(){
+    int fr = M[1];
+
+    cik(i, 2, K, 1){
+        if(M[i] != fr){
+            return false;
+        }
+    }
+    return true;
+}
+
+int main()
+{
+    cin >> K >> N;
+
+    int minf = 1e9, maxf = 0;
+    int mini = 1e9, maxi = 0;
+    cik(i, 1, N, 1){
+        int a; cin >> a;
+        M[a]++;
+    }
+
+    cik(i, 1, K, 1){
+        if(minf > M[i]){
+            minf = M[i];
+            mini = i;
+        }
+        if(maxf < M[i]){
+            maxf = M[i];
+            maxi = i;
+        }
+    }
+
+    bool flag = false;
+    if(!flag){
+        M[maxi]--;
+        if(ok()){
+            flag = true;
+            cout << "-" << maxi << "\n";
+        }
+        M[maxi]++;
+    }
+    if(!flag){
+        M[mini]++;
+        if(ok()){
+            flag = true;
+            cout << "+" << mini << "\n";
+        }
+        M[mini]--;
+    }
+    if(!flag){
+        M[maxi]--; M[mini]++;
+        if(ok()){
+            cout << "-" << maxi << " +" << mini << "\n";
+            flag = true;
+        }
+    }
+    if(!flag){
+        cout << "*";
+    }
+
+    return 0;
+}
