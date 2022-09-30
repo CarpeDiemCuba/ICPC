@@ -1,0 +1,62 @@
+/*
+https://matcomgrader.com/problem/9485/base-b/
+
+Dado dos enteros positivos N y B (2≤B≤9) escriba N en base B.
+
+Input
+Línea 1: Un entero T (1≤T≤104), el número de casos.
+Línea 2 ... T + 1: Dos enteros separados por espacio N (0≤N≤106) y B.
+
+Output
+Línea 1 ... T: Por cada caso de prueba represente N en base B (NB).
+
+Sample test(s)
+input
+2
+5 2
+79 7
+output
+101
+142
+*/
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+vector<int> solve(int n, int b){
+    vector<int> r;
+    if(n == 0){
+        r.push_back(0);
+        return r;
+    }
+    while(n){
+        r.push_back( n%b );
+        n /= b;
+    }
+    return r;
+}
+
+int main()
+{
+    cin.tie(0);
+    ios_base::sync_with_stdio(0);
+
+    int T;
+    cin >>T;
+
+    while(T--){
+        int N, b;
+        cin >>N >>b;
+
+        vector<int> r = solve(N, b) ;
+
+        reverse(r.begin(), r.end());
+
+        for(int i = 0; i < r.size(); i++){
+            cout <<r[i];
+        }
+        cout <<"\n";
+    }
+    return 0;
+}
