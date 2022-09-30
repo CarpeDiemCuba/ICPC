@@ -1,0 +1,118 @@
+/*
+https://lightoj.com/problem/not-the-best
+
+Robin has moved to a small village and likes visiting one of his best friends. He usually takes a longer route, because he likes the scenery along the way. He has decided to take the second-best rather than the shortest path. He knows that there must be a second-best path.
+
+The countryside consists of R bidirectional roads, each linking two of the N intersections, conveniently numbered from 1to N. Robin starts at intersection 1, and his friend is at intersection N.
+
+The second-best path may share roads with any of the shortest paths, and it may backtrack i.e. use the same road or intersection more than once. The second-best path is the shortest path whose length is longer than the shortest path(s) (i.e. if two or more shortest paths exist, the second-shortest path is the one whose length is longer than those but no longer than any other path).
+
+Input
+Input starts with an integer T (≤ 10), denoting the number of test cases.
+
+Each case contains two integers N (1 ≤ N ≤ 5000) and R (1 ≤ R ≤ 105). Each of the next R lines contains three space-separated integers: u, v and w that describe a road that connects intersections u and v and has length w (1 ≤ w ≤ 5000).
+
+Output
+For each case, print the case number and the second best shortest path as described above.
+
+Sample
+Input	Output
+2
+3 3
+1 2 100
+2 3 200
+1 3 50
+4 4
+1 2 100
+2 4 200
+2 3 250
+3 4 100
+
+Case 1: 150
+Case 2: 450
+
+
+*/
+
+//By Forte11
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+#define bi pair<int, int>
+#define f first
+#define s second
+#define mkp make_pair
+
+const int maxn = 5e3 + 5;
+
+vector<bi > Adlist[maxn];
+vector<int> Cost[maxn];
+
+int N, M;
+
+void Dijkstra(){
+    priority_queue<bi, vector<bi >, greater<bi> > Q;
+    Q.push(mkp(0, 1));
+
+    while(!Q.empty()){
+        int nod = Q.top().s;
+        int c = Q.top().f;
+        Q.pop();
+
+        if(Cost[nod].size() > 2){
+            continue;
+        }
+        if(Cost[nod].size()){
+            if(Cost[nod][0] == c){
+                continue;
+            }
+        }
+        Cost[nod].push_back(c);
+
+        if(Cost[N].size() == 2){
+            return;
+        }
+
+        int lon = Adlist[nod].size() - 1;
+        cik(i, 0, lon, 1){
+            int nn = Adlist[nod][i].f;
+            int ncost = Adlist[nod][i].s + c;
+            Q.push(mkp(ncost, nn));
+        }
+    }
+    return;
+}
+
+void clean(){
+    cik(i, 1, maxn - 5, 1){
+        Adlist[i].clear();
+        Cost[i].clear();
+    }
+    return;
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+
+    int T; cin >> T;
+    cik(t, 1, T, 1){
+        cin >> N >> M;
+        cik(i, 1, M, 1){
+            int a, b, c;
+            cin >> a >> b >> c;
+            Adlist[a].push_back(mkp(b, c));
+            Adlist[b].push_back(mkp(a, c));
+        }
+
+        Dijkstra();
+
+        cout << "Case " << t << ": " << Cost[N][1] << "\n";
+
+        clean();
+    }
+    return 0;
+}
