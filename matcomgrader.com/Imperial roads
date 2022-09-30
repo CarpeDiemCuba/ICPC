@@ -1,0 +1,210 @@
+/*
+https://matcomgrader.com/problem/9349/imperial-roads/
+
+The roads of Cubiconia are in a dire state, after years of neglect and lack of maintenance. Each road connects two different cities A and B and can be traveled in both ways (from A to B or from B to A). There is at most one road between each pair of cities, and using the existing roads it is possible to travel between any pair of cities. The new emperor of Cubiconia has just raised the taxes (again!), but promised to repair at least some of the roads, guaranteeing that Cubiconians will be able to travel between any pair of cities using only restored roads.
+
+The Department of Public Works have calculated the cost of repairing each individual road. Now they want to calculate the minimum cost for repairing a set of roads so that the emperor’s promise is made true. This is not easy because the emperor wants the set of repaired roads to include one particular road, but he has not yet decided which particular road to include: could be the one that connects the city where his castle is to the city where his daughter’s royal residence is, or the road that connects the city where his summer palace is to the only city by the seaside, or... Fearing the emperor will take too long to decide, the engineers want your help.
+
+Given the description of the roads in Cubiconia, with their respective repairing costs, you must write a program to answer a set of queries. For each query you will be given one specific road that should be repaired, and must determine the minimum cost for repairing a set of roads (including the given specific road) so that Cubiconians will be able to travel between any pair of cities using only restored roads.
+Input
+The first line contains two integers N (2≤N≤105) and R (N−1≤R≤2×105), representing respectively the number of cities and the number of roads in Cubiconia. Cities are identified by distinct integers from 1 to N. Each of the next R lines describes a road with three integers A, B (1≤A<B≤N) and C (1≤C≤104), indicating that there is a road between cities A and B and the cost of repairing it is C. There is at most one road between each pair of cities, and using the existing roads it is possible to travel between any pair of cities. The next line contains an integer Q (1≤Q≤105) representing the number of queries. Each of the next Q lines describes a query with two integers U and V (1≤U<V≤N), indicating the specific road that should be repaired. There are no repeated queries.
+Output
+Output Q lines, each line with an integer indicating the answer to the corresponding query of the input, that is, the minimum cost for repairing a set of roads (including the specific road in the query) so that Cubiconians will be able to travel between any pair of cities using only restored roads.
+Sample test(s)
+input
+3 3
+1 2 10
+2 3 5
+1 3 7
+3
+2 3
+1 2
+1 3
+output
+12
+15
+12
+input
+4 4
+1 2 1
+2 4 1
+2 3 100
+1 4 50
+1
+1 4
+output
+151
+input
+5 7
+1 2 8
+1 3 10
+2 4 5
+2 3 12
+4 5 4
+3 5 14
+1 5 20
+3
+2 3
+1 5
+3 5
+output
+29
+39
+31
+
+*/
+
+//By Forte11
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+#define bi pair<int, int>
+#define tri pair<bi, int>
+#define f first
+#define s second
+#define mkp make_pair
+
+const int maxn = 2e5 + 5;
+const int maxm = log2(maxn) + 10;
+
+map<int, int> M[maxn];
+vector<bi > tree[maxn];
+
+int Level[maxn], LCA[maxn][maxm], C[maxn][maxm];
+bool B[maxn];
+
+int N, Ar, Q, Cost;
+
+void Prim(){
+    priority_queue<tri,  vector<tri >, greater<tri > > Q;
+    Q.push(mkp(mkp(0, 1), 0));
+
+    while(!Q.empty()){
+        int cost = Q.top().f.f;
+        int nod = Q.top().f.s;
+        int father = Q.top().s;
+        Q.pop();
+
+        if(B[nod]){
+            continue;
+        }
+        B[nod] = true;
+        Cost += cost;
+
+        if(father){
+            tree[nod].push_back(mkp(father, cost));
+            tree[father].push_back(mkp(nod, cost));
+        }
+
+        for(map<int, int>:: iterator it = M[nod].begin(); it != M[nod].end(); it++){
+            int nn = it -> f;
+            int ncost = it -> s;
+            if(!B[nn]){
+                Q.push(mkp(mkp(ncost, nn), nod));
+            }
+        }
+    }
+    return;
+}
+
+void build_lca(){
+    queue<int> q;
+
+    q.push(1);
+
+    while(!q.empty()){
+        int nod = q.front();
+        q.pop();
+
+        B[nod] = false;
+
+        int lon = tree[nod].size() - 1;
+        cik(i, 0, lon, 1){
+            int nn = tree[nod][i].f;
+            int ncost = tree[nod][i].s;
+            if(B[nn]){
+                q.push(nn);
+
+                Level[nn] = Level[nod] + 1;
+
+                LCA[nn][0] = nod;
+                C[nn][0] = ncost;
+
+                int LG = log2(Level[nn]);
+                cik(k, 1, LG, 1){
+                    if(LCA[nn][k - 1]){
+                        LCA[nn][k] = LCA[LCA[nn][k - 1]][k - 1];
+                        C[nn][k] = max(C[LCA[nn][k - 1]][k - 1], C[nn][k - 1]);
+                    }
+                }
+            }
+        }
+    }
+    return;
+}
+
+int query(int a, int b){
+    int Sol = 0;
+
+    if(Level[a] < Level[b]){
+        swap(a, b);
+    }
+
+    int LG = log2(Level[a]);
+
+    for(int i = LG; i >= 0; i--){
+        if(LCA[a][i] && Level[a] - (1 << i) >= Level[b]){
+            Sol = max(Sol, C[a][i]);
+            a = LCA[a][i];
+        }
+    }
+
+    if(a == b){
+        return Sol;
+    }
+
+    LG = log2(Level[a]);
+
+    for(int i = LG; i >= 0; i--){
+        if(LCA[a][i] != LCA[b][i] && LCA[a][i]){
+            Sol = max(Sol, max(C[a][i], C[b][i]));
+            a = LCA[a][i]; b = LCA[b][i];
+        }
+    }
+    return max(Sol, max(C[a][0], C[b][0]));
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0); cout.tie(0);
+    
+    cin >> N >> Ar;
+
+    cik(i, 1, Ar, 1){
+        int a, b, c; cin >> a >> b >> c;
+
+        if(M[a].find(b) == M[a].end()){
+            M[a][b] = c;
+            M[b][a] = c;
+        }
+        else{
+            M[a][b] = min(M[b][a], c);
+            M[b][a] = min(M[a][b], c);
+        }
+    }
+
+    Prim();
+    build_lca();
+
+    int Q; cin >> Q;
+
+    cik(i, 1, Q, 1){
+        int a, b; cin >> a >> b;
+        cout << Cost - query(a, b) + M[a][b] << "\n";
+    }
+
+    return 0;
+}
