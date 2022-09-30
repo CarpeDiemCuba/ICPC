@@ -1,0 +1,110 @@
+/*
+https://matcomgrader.com/problem/9345/enigma/
+
+The world famous pirate Cornelius “Cheesehead” Bakker was a renowned astronomer and mathematician. He buried most of his treasury in the Caribbean island of Saint Basil, where Pico Colombo is a well-known geographic reference mark. Cheesehead disappeared when his fleet of three ships was caught in a hurricane in 1617. Perhaps by some kind of premonition, before his fatal excursion he wrote in a letter to one of his nieces in the Netherlands the exact distance to his hidden treasure, from Pico Colombo in the south direction.
+
+Wary that the map would end up in the wrong hands, Cheesehead used his math skills as an insurance against robbers. Instead of writing in the letter the number indicating the distance, he multiplied it by a second number N, and wrote the result D in the letter, together with the value of N and an explanation of the computation he had done. He knew that even if some unwanted person had the letter, he or she would have to know how to divide two numbers, which very few robbers could at that time. Unfortunately, when the letter arrived in Europe, Cheesehead’s niece had joined a convent to become a nun and did not even bother to open the letter.
+
+Exactly four centuries afterwards, Maria came into possession of a chest containing the belongings of her ancestor nun. And you can imagine her surprise when she found the letter, still unopened! Maria is planning an excursion to seek for Cheesehead’s treasure, but she needs your help. Although the value of N is intact and she can read it, the number D has been partially eaten by moths so that some of its digits are unreadable. The only clue Maria has is that the leftmost digit of D is not zero because Cheesehead said so in the letter to his niece.
+
+Given the partial representation of D and the value of N, you must determine the smallest possible value for D so that it is a multiple of N and does not have leading zeros.
+Input
+The input consists of a single line that contains a non-empty string S of at most 1000 characters and an integer N (1≤N≤1000). Each character of S is either a decimal digit or the character “?” (question mark); the leftmost character is not “0” and at least one character is “?”.
+Output
+Output a single line with an integer D without leading zeros indicating the smallest multiple of N that has |S| digits and such that the digits in S are coincident with the corresponding digits in D. If there exists no such an integer D, write an “*” (asterisk) to the output.
+Sample test(s)
+input
+1??????????????????????????????? 2
+output
+10000000000000000000000000000000
+input
+???????????????????????????????1 2
+output
+*
+input
+?294?? 17
+output
+129404
+
+*/
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+
+const int maxn = 1e4 + 5;
+
+string A;
+int M, L;
+
+bool dp[maxn][maxn];
+char go[maxn];
+
+bool build(int pos, int mod){
+    if(dp[pos][mod]){
+        return false;
+    }
+
+    dp[pos][mod] = true;
+
+    if(pos == L - 1){
+        if(mod == 0){
+            return true;
+        }
+        return false;
+    }
+    pos++;
+
+    if(A[pos] != '?'){
+        go[pos - 1] = A[pos];
+        return build(pos, (mod * 10 + (A[pos] - '0')) % M);
+    }
+    cik(i, 0, 9, 1){
+        go[pos - 1] = (i + '0');
+        bool flag = build(pos, (mod * 10 + i) % M);
+        if(flag){
+            return true;
+        }
+    }
+    return false;
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0); cout.tie(0);
+
+    cin >> A >> M;
+
+    L = A.size();
+    bool flag = false;
+
+    if(A[0] == '?'){
+        for(int i = 1; i <= 9; i++){
+            A[0] = i + '0';
+
+            flag = build(0, (A[0] - '0') % M);
+
+            if(flag){
+                break;
+            }
+        }
+    }
+    else{
+        flag = build(0, (A[0] - '0') % M);
+    }
+
+    if(!flag){
+        cout << "*\n";
+    }
+    else{
+        cout << A[0];
+        cik(i, 0, L - 2, 1){
+            cout << go[i];
+        }
+        cout << "\n";
+    }
+    return 0;
+}
