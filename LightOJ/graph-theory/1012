@@ -1,0 +1,151 @@
+/*
+https://lightoj.com/problem/guilty-prince
+
+Once there was an Emperor named Akbar. He had a son named Jahangir. For an unforgivable reason, the king wanted him to leave the kingdom. Since he loved his son, he decided his son would be banished to a new place. The prince became sad, but he followed his father's will. On the way, he found that the place was a combination of land and water. Since he didn't know how to swim, he was only able to move on the land. He didn't know how many places might be his destination. So, he asked for your help.
+
+For simplicity, you can consider the place as a rectangular grid consisting of some cells. A cell can be a land or can contain water. Each time the prince can move to a new cell from his current position if they share a side.
+
+Now write a program to find the number of cells (unit land) he could reach including the cell he was initially in.
+
+Input
+Input starts with an integer T (≤ 500), denoting the number of test cases.
+
+Each case starts with a line containing two positive integers W and H; W and H are the numbers of cells in the x and y directions, respectively. W and H will not be more than 20.
+
+There will be H more lines in the data set, each of which includes W characters. Each character represents the status of a cell as follows.
+
+. - land.
+# - water.
+@ - initial position of the prince (appears exactly once in a dataset).
+Output
+For each case, print the case number and the number of cells he can reach from the initial position (including self).
+
+Sample
+Input	Output
+4
+6 9
+....#.
+.....#
+......
+......
+......
+......
+......
+#@...#
+.#..#.
+11 9
+.#.........
+.#.#######.
+.#.#.....#.
+.#.#.###.#.
+.#.#..@#.#.
+.#.#####.#.
+.#.......#.
+.#########.
+...........
+11 6
+..#..#..#..
+..#..#..#..
+..#..#..###
+..#..#..#@.
+..#..#..#..
+..#..#..#..
+7 7
+..#.#..
+..#.#..
+###.###
+...@...
+###.###
+..#.#..
+..#.#..
+
+Case 1: 45
+Case 2: 59
+Case 3: 6
+Case 4: 13
+*/
+
+
+//By Forte11
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+#define mx(a, b) ((a) > (b) ? (a ) : (b))
+#define bi pair<int, int>
+#define f first
+#define s second
+#define mkp make_pair
+
+const int maxn = 25;
+
+const int
+    df[] = {0, 0,  0, -1, 1},
+    dc[] = {0, 1, -1,  0, 0};
+
+char A[maxn][maxn];
+
+bi ini;
+int N, M, sol;
+
+bool ok(int a, int b){
+    return a > 0 && a <= N && b > 0 && b <= M;
+}
+
+void bfs(){
+    sol = 1;
+
+    queue<bi > q;
+    q.push(ini);
+
+    while(!q.empty()){
+        int fil = q.front().f;
+        int col = q.front().s;
+        q.pop();
+
+        cik(i, 1, 4, 1){
+            int mf = df[i] + fil;
+            int mc = dc[i] + col;
+
+            if(!ok(mf, mc)){
+                continue;
+            }
+
+            if(A[mf][mc] == '.'){
+                sol++;
+                A[mf][mc] = 'F';
+                q.push(mkp(mf, mc));
+            }
+        }
+    }
+    return;
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+
+    int T; cin >> T;
+
+    cik(t, 1, T, 1){
+        cin >> M >> N;
+
+        cik(i, 1, N, 1){
+            cik(j, 1, M, 1){
+                cin >> A[i][j];
+
+                if(A[i][j] == '@'){
+                    ini = mkp(i, j);
+                }
+            }
+        }
+
+        bfs();
+
+        cout << "Case " << t << ": " << sol << "\n";
+    }
+
+    return 0;
+}
