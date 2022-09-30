@@ -1,0 +1,153 @@
+/*
+https://lightoj.com/problem/country-roads
+
+I am going to my home. There are many cities and many bi-directional roads between them. The cities are numbered from 0 to n-1 and each road has a cost. There are m roads. You are given the number of my city t where I belong. Now from each city you have to find the minimum cost to go to my city. The cost is defined by the cost of the maximum road you have used to go to my city.
+
+Country Roads
+
+For example, in the above picture, if we want to go from 0 to 4, then we can choose
+
+0 - 1 - 4 which costs 8, as 8 (1 - 4) is the maximum road we used
+0 - 2 - 4 which costs 9, as 9 (0 - 2) is the maximum road we used
+0 - 3 - 4 which costs 7, as 7 (3 - 4) is the maximum road we used
+So, our result is 7, as we can use 0 - 3 - 4.
+
+Input
+Input starts with an integer T (≤ 20), denoting the number of test cases.
+
+Each case starts with a blank line and two integers n (1 ≤ n ≤ 500) and m (0 ≤ m ≤ 16000). The next m lines, each will contain three integers u, v, w (0 ≤ u, v < n, u ≠ v, 1 ≤ w ≤ 20000) indicating that there is a road between u and v with cost w. Then there will be a single integer t (0 ≤ t < n). There can be multiple roads between two cities.
+
+Output
+For each case, print the case number first. Then for all the cities (from 0 to n-1) you have to print the cost. If there is no such path, print Impossible.
+
+Sample
+Input	Output
+2
+
+5 6
+0 1 5
+0 1 4
+2 1 3
+3 0 7
+3 4 6
+3 1 8
+1
+
+5 4
+0 1 5
+0 1 4
+2 1 3
+3 4 7
+1
+
+Case 1:
+4
+0
+3
+7
+7
+Case 2:
+4
+0
+3
+Impossible
+Impossible
+*/
+
+//By Forte11
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+#define bi pair<int, int>
+#define f first
+#define s second
+#define mkp make_pair
+#define mx(a, b) ((a) > (b) ? (a) : (b))
+#define mn(a, b) ((a) < (b) ? (a) : (b))
+
+const int maxn = 505;
+
+map<int, int> Adlist[maxn];
+int C[maxn];
+
+int N, M, t;
+
+void Dijkstra(){
+    priority_queue<bi, vector<bi>, greater<bi > > Q;
+    Q.push(mkp(0, t));
+
+    set<int> S; S.clear();
+
+    while(!Q.empty()){
+        int cost = Q.top().f;
+        int nod = Q.top().s;
+        Q.pop();
+
+        if(S.find(nod) != S.end()){
+            continue;
+        }
+
+        S.insert(nod);
+        C[nod] = cost;
+
+        for(map<int, int>::iterator it = Adlist[nod].begin();
+            it != Adlist[nod].end(); it++){
+            int nn = it -> f;
+            int ncost = it -> s;
+
+            if(S.find(nn) == S.end()){
+                Q.push(mkp(mx(cost, ncost), nn));
+            }
+        }
+    }
+    return;
+}
+
+void clean(){
+    cik(i, 0, N - 1, 1){
+        Adlist[i].clear();
+        C[i] = 0;
+    }
+    return;
+}
+
+int main()
+{
+    int A; scanf("%d", &A);
+
+    cik(a, 1, A, 1){
+        scanf("%d%d", &N, &M);
+
+        cik(i, 1, M, 1){
+            int a, b, c; scanf("%d%d%d", &a, &b, &c);
+
+            if(Adlist[a].find(b) != Adlist[a].end()){
+                Adlist[a][b] = mn(Adlist[a][b], c);
+                Adlist[b][a] = mn(Adlist[a][b], c);
+            }
+            else{
+                Adlist[a][b] = c;
+                Adlist[b][a] = c;
+            }
+        }
+
+        scanf("%d", &t);
+
+        Dijkstra();
+
+        printf("Case %d:\n", a);
+        cik(i, 0, N - 1, 1){
+            if(!C[i] && i != t){
+                printf("Impossible\n");
+            }
+            else{
+                printf("%d\n", C[i]);
+            }
+        }
+
+        clean();
+    }
+    return 0;
+}
