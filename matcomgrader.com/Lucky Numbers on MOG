@@ -1,0 +1,82 @@
+/*
+https://matcomgrader.com/problem/30/lucky-numbers-on-mog/
+
+Digits 4 and 7 are lucky, while all others are unlucky. An integer is lucky if it contains only lucky digits in decimal notation. We would like to know the K-th lucky positive integer.
+
+Input
+The first and only line of input contains a positive integer K (1≤K≤109).
+
+Output
+The first and only line of output must contain the K-th lucky positive integer.
+
+Sample test(s)
+input
+1
+output
+4
+input
+2
+output
+7
+input
+3
+output
+44
+*/
+
+// tuple's get
+#include <bits/stdc++.h>
+
+using namespace std;
+set <int> ind;
+map <int , int> m;
+
+void prep()
+{
+    ind.insert(1);
+    m[1] = 1;
+    int pot = 1
+    ;
+    int n = 1;
+    int i = 2;
+    while(i <= 31)
+    {
+        pot *= 2;
+        n += pot;
+        m[n] = i;
+        ind.insert(n);
+        i++;
+    }
+}
+string f(int pos , int ta)
+{
+   int in = 1; int fn = pow(2 , ta);
+   string res = "";
+   while(fn >= 2)
+   {
+     //  cout<<pos<<"\n";
+       if(pos <= fn / 2)
+          res += '4';
+       else {
+          res += '7';
+          pos = pos - (fn / 2);
+       }
+       fn >>= 1;
+   }
+   return res;
+}
+int main ()
+{
+    prep();
+   int n; cin>>n;
+   set<int>::iterator pos = ind.lower_bound(n);
+
+  // cout<<*pos<<"\n";
+   if(*pos != n){
+   --pos;
+   //cout<<*pos<<"\n";
+   }
+   int ta = m[*pos];
+
+   cout<<f(n - *pos + 1 , ta)<<"\n";
+}
