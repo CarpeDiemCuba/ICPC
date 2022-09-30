@@ -1,0 +1,60 @@
+/*
+https://matcomgrader.com/problem/9478/formando-equipos/
+
+En la Universidad de la Habana se intenta probar una nueva forma de competir en los concursos ACM-ICPC. El concurso va a funcionar de forma similar pero la cantidad de personas en un equipo no tiene restricción, aunque cada equipo seguirá contando con una sola computadora. Para evitar que se formen equipos demasiado fuertes, el promedio de la capacidad de los integrantes de un equipo debe ser igual a cierto valor P. A pesar de que esta medida pretende que los equipos tengan el mismo nivel, Fito considera que aún se pueden formar equipos mucho más sólidos que el resto. Por ejemplo, una persona muy buena podría simplemente unirse a un conjunto de competidores, que en la concreta no le aporte nada serio el día del concurso, pero que sí le permita llegar al promedio exigido. Fito conoce a los N estudiantes de la facultad que pueden participar en la competencia y necesita saber la mayor capacidad que puede tener un estudiante tal que pueda formar un equipo con promedio P.
+Input
+La entrada empieza con dos enteros N (1≤N≤50) y P(1≤P≤600) que indican la cantidad de estudiantes y el promedio del equipo respectivamente. En la siguiente línea aparecen N enteros que representan las capacidades de los estudiantes. Todas las capacidades son valores enteros entre 1 y 600.
+Output
+Imprimir la mayor capacidad que puede tener un estudiante tal que exista un equipo que lo contiene y tenga promedio P. Si no es posible se debe imprimir -1.
+
+Sample test(s)
+input
+3 90
+80 90 100
+output
+100
+*/
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+const int MAX = 55;
+const int MAXV = 55 * 605;
+
+bool pos[MAX][MAXV];
+int n, p, top, a[MAX], dp[MAX][MAXV];
+
+int main() {
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+
+    cin >> n >> p;
+    for(int i = 1; i <= n; i++)
+        cin >> a[i];
+
+    top = n * p;
+
+    pos[0][0] = 1;
+    for(int i = 1; i <= n; i++)
+        for(int j = n; j >= 1; j--)
+            for(int k = a[i]; k <= top; k++) {
+                if(pos[j-1][k-a[i]]) {
+                    pos[j][k] = 1;
+                    dp[j][k] = max(dp[j][k], max(dp[j-1][k-a[i]], a[i]));
+                }
+            }
+
+    int best = -1;
+
+    for(int i = 1; i <= n; i++) {
+        if(pos[i][i*p])
+            best = max(best, dp[i][i*p]);
+    }
+
+    cout << best << "\n";
+}
+/*
+5 10
+6 6 5 3 3
+*/
