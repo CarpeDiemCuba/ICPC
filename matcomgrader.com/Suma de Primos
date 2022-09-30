@@ -1,0 +1,109 @@
+/*
+https://matcomgrader.com/problem/42/suma-de-primos/
+
+Un número positivo puede ser expresado como la suma de diferentes números primos de varias formas. Dado dos números enteros positivos N y K usted debe contar las maneras de expresar N como la suma de K números primos distintos. Las soluciones 3+5 y 5+3, cuando N=8 y K=2, se deben contar como una sola.
+
+Cuando N=24 y K=3 la respuesta es dos, porque podemos de los conjuntos de primos {2,3,19} y {2,5,17} sumar sus elementos y obtener 24. No hay otros conjuntos de tres primos que sumen 24.  Para N=24 y K=2 la respuesta es tres, {5,19}, {7,17} y {11,13}. Para N=2 y K=1 la respuesta es uno, el conjunto {2}.  Para N=1 y K=1 la respuesta es cero, ya que se asume que 1 no es primo. Para N=4 y K=2 la respuesta es 0.
+
+Input
+La entrada es una secuencia de dos números, N y K separadas por un espacio. 1≤N≤1120 y 1≤K≤14. La entrada termina cuando se leen dos 0.
+Output
+Se debe de imprimir por cada línea la respuesta, debe asumir que esta es menor que 231.
+
+
+Sample test(s)
+input
+24 3 
+24 2 
+2 1 
+1 1 
+4 2 
+18 3 
+17 1 
+17 3 
+17 4 
+100 5 
+1000 10 
+1120 14 
+0 0
+output
+2
+3
+1
+0
+0
+2
+1
+0
+1
+55
+200102899
+2079324314
+
+*/
+
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+vector<int> primos;
+bool P[1121];
+
+bool calc[1121][15][200];
+int d[1121][15][200];
+
+bool primo(int n){
+    if (n < 2)
+        return false;
+    if (n == 2)
+        return true;
+    if (n % 2 == 0)
+        return false;
+    for (int i = 3;  i * i <= n ; i += 2)
+        if (n % i == 0)
+            return false;
+    return true;
+}
+
+int f(int n, int k, int i){
+    if (i < 0)
+        return 0;
+    if (k <= 0)
+        return 0;
+    if (n <= 0)
+        return 0;
+    if (!calc[n][k][i]){
+        int r = 0;
+        if (P[n] && k == 1 && primos[i] == n)
+            r++;
+        r += f(n - primos[i], k - 1, i - 1);
+        r += f(n, k, i - 1);
+        calc[n][k][i] = true;
+        d[n][k][i] = r;
+    }
+    return d[n][k][i];
+}
+
+int main()
+{
+    P[2] = true;
+    primos.push_back(2);
+    for (int i = 3; i < 1120 ; i += 2)
+        if (primo(i)){
+            P[i] = true;
+            primos.push_back(i);
+        }
+
+   // cout << primos.size();
+
+    while (1){
+        int n, k;
+        cin >> n >> k;
+        if (n == 0 && k == 0)
+            break;
+        cout << f(n, k, primos.size() - 1) << '\n';
+    }
+
+    return 0;
+}
