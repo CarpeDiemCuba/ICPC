@@ -1,0 +1,41 @@
+/*
+https://matcomgrader.com/problem/9267/alex-origami-squares/
+
+Alex is fond of origami — Japanese art of paper folding. Most origami designs start with a square sheet of paper. Alex is going to make a present for his mother. Present's design requires three equal square sheets of paper, but Alex has only one rectangular sheet. He is able to cut out squares of this sheet, but their sides should be parallel to the sides of the sheet. Help Alex to determine the maximum possible size of the paper squares he is able to cut out.
+Input
+The single line of the input file contains two integers h and w — the height and the width of the sheet of paper (1≤h,w≤1000).
+
+Output
+Output a single real number — the maximum possible length of the square side. It should be possible to cut out three such squares of h×w sheet of paper, so that their sides are parallel to the sides of the sheet. 
+
+Your answer should be precise up to three digits after the decimal point.
+
+Sample test(s)
+input
+210 297
+output
+105.0
+input
+250 100
+output
+83.333333
+*/
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+int main()
+{
+    double a, b;
+    cin >>a >>b;
+    double aux;
+    double r = min(a/2.0, b/2.0);
+    aux = min(a, b/3.0);
+    r = max(r, aux);
+    aux = min(b, a/3.0);
+    r = max(r, aux);
+
+    cout <<setprecision(5) <<fixed <<r <<"\n";
+    return 0;
+}
