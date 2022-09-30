@@ -1,0 +1,153 @@
+/*
+https://matcomgrader.com/problem/9346/fundraising/
+
+A prestigious politician aiming for presidency next year is planning a fundraising dinner for her campaign. She has a list of some wealthy people in the country and wants to invite them in a way that the amount of money raised is as great as possible.
+
+Sometimes wealthy people have futile behavior and don’t like the idea that someone richer or prettier than them exists. Every time someone like this meets another person who is strictly prettier, but not strictly richer, then an argument ensues. Likewise, if they meet another person who is strictly richer, but not strictly prettier, an argument occurs as well. These two situations are the only possible causes of an argument involving two persons. Thus, two persons do not have an argument if one of them is strictly prettier and strictly richer than the other. Also, two persons do not have an argument if they are equally rich and equally pretty.
+
+Since the presidential candidate wants to raise as much money as possible, an argument should be avoided at all costs, as it could ruin the campaign. Given the characteristics of some wealthy people in the country, you must find a guest list that maximizes the donations while ensuring that no argument will happen during the dinner.
+Input
+The first line contains an integer N (1≤N≤105) representing the number of possible guests with known characteristics. Each of the next N lines describes a possible guest with three integers B, F and D (1≤B,F,D≤109), indicating respectively the person’s beauty, his/her fortune, and how much this person will donate if invited.
+Output
+Output a single line with an integer indicating the maximum sum of donations if guests are invited so that no argument will happen during the dinner.
+Sample test(s)
+input
+4
+1 2 50
+2 1 50
+2 2 30
+1 1 30
+output
+60
+input
+3
+3 3 3
+5 5 3
+2 2 3
+output
+9
+input
+3
+2 8 13
+1 4 12
+2 1 16
+output
+25
+*/
+
+//By Forte11
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+#define ll long long
+#define ull unsigned long long
+#define bi pair<int, int>
+#define tri pair<bi, ll>
+#define f first
+#define s second
+#define mkp make_pair
+
+const int maxn = 1e5 + 5;
+
+ll SG[maxn * 4];
+ll Sol, val, pos;
+
+map<bi, ll> M;
+
+void update(int nod, int ini, int fin){
+    if(ini > pos || pos > fin){
+        return;
+    }
+
+    if(ini == fin && ini == pos){
+        SG[nod] = max(SG[nod], Sol);
+        return;
+    }
+
+    int n1 = nod << 1;
+    int n2 = n1 + 1;
+    int mit = (ini + fin) >> 1;
+
+    update(n1, ini, mit);
+    update(n2, mit + 1, fin);
+
+    SG[nod] = max(SG[n1], SG[n2]);
+    return;
+}
+
+ll query(int nod, int ini, int fin){
+    if(ini > pos){
+        return 0;
+    }
+
+    if(fin <= pos){
+        return SG[nod];
+    }
+
+    int n1 = nod << 1;
+    int n2 = n1 + 1;
+    int mit = (ini + fin) >> 1;
+
+    ll q1 = query(n1, ini, mit);
+    ll q2 = query(n2, mit + 1, fin);
+
+    return max(q1, q2);
+}
+
+bool cmp(tri a, tri b){
+    if(a.f.f == b.f.f){
+        return a.f.s > b.f.s;
+    }
+    return a.f.f < b.f.f;
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0); cout.tie(0);
+
+    int N; cin >> N;
+
+    cik(i, 1, N, 1){
+        ll a, b, c; cin >> a >> b >> c;
+        if(M.find(mkp(a, b)) == M.end()){
+            M[mkp(a, b)] = c;
+        }
+        else{
+            M[mkp(a, b)] += c;
+        }
+    }
+
+    vector<int > Pos_Y; Pos_Y.clear();
+    vector<tri > K; K.clear();
+    for(map<bi,ll > :: iterator it = M.begin(); it != M.end(); it++){
+        tri a = *it;
+        int y = a.f.s;
+        Pos_Y.push_back(y);
+        K.push_back(a);
+    }
+    sort(Pos_Y.begin(), Pos_Y.end());
+    sort(K.begin(), K.end(), cmp);
+
+    ll Ans = 0;
+    for(int i = 0; i < K.size(); i++){
+        tri a = K[i];
+
+        int y = a.f.s;
+        val = a.s;
+
+        pos = lower_bound(Pos_Y.begin(), Pos_Y.end(), y) - Pos_Y.begin();
+        Sol = query(1, 1, N) + val;
+
+        pos++;
+        update(1, 1, N);
+
+        Ans = max(Ans, Sol);
+    }
+
+    cout << Ans << "\n";
+
+    return 0;
+}
