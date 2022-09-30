@@ -1,0 +1,160 @@
+/*
+https://lightoj.com/problem/collecting-gold
+
+Finally, you found the city of Gold. As you are fond of gold, you start collecting it. But there is so much gold that you are getting tired.
+
+So, you want to find the minimum effort to collect all the gold.
+
+You can describe the city as a 2D grid, where your initial position is marked by an x. An empty place will be denoted by a .. And the cells which contain gold will be denoted by g. In each move, you can go to all 8 adjacent cells inside the city.
+
+Input
+Input starts with an integer T (≤ 100), denoting the number of test cases.
+
+Each case will start with a blank line and two integers, m and n (0 < m, n < 20) denoting the row and columns of the city respectively. Each of the next m lines will contain n characters describing the city. There will be exactly one x in the city and at most 15 gold positions.
+
+Output
+For each case of input you have to print the case number and the minimum steps you have to take to collect all the gold and go back to x.
+
+Sample
+Input	Output
+2
+
+5 5
+x....
+g....
+g....
+.....
+g....
+
+5 5
+x....
+g....
+g....
+.....
+.....
+
+Case 1: 8
+Case 2: 4
+*/
+
+//By Forte11
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define ll long long
+#define cik(i, a, b, c) for(ll i =(a); i <=(b); i +=(c))
+#define bi pair<int, int>
+#define f first
+#define s second
+#define mkp make_pair
+#define mx(a, b) ((a) > (b) ? (a) : (b))
+#define mn(a, b) ((a) < (b) ? (a) : (b))
+
+const int maxn = 20, maxm = (1 << 16);
+
+int C[maxn][maxn];
+
+ll dp[maxm][20];
+
+vector<bi > P;
+set<int> P2;
+bi ini;
+
+ll N, M;
+
+int dist(int a, int b){
+    return mx(abs(P[a].f - P[b].f), abs(P[a].s - P[b].s));
+}
+
+void calc_pow_2(){
+    int k = 1;
+    cik(i, 1, 16, 1){
+        P2.insert(k);
+        k *= 2;
+    }
+    return;
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+
+    calc_pow_2();
+
+    int T; cin >> T;
+    cik(t, 1, T, 1){
+        cin >> N >> M;
+
+        cik(i, 1, N, 1){
+            string a; cin >> a;
+            a = " " + a;
+            cik(j, 1, M, 1){
+                if(a[j] == '.'){
+                    continue;
+                }
+                if(a[j] == 'g'){
+                    P.push_back(mkp(i, j));
+                }
+                else if(a[j] == 'x'){
+                    ini = mkp(i, j);
+                }
+            }
+        }
+
+        int lon = P.size() - 1;
+
+        if(lon == -1){
+            cout << "Case " << t << ": 0\n";
+            continue;
+        }
+
+        P.push_back(ini);
+        cik(i, 0, lon, 1){
+            C[i][lon + 1] = C[lon + 1][i] = dist(i, lon + 1);
+            cik(j, i, lon, 1){
+                C[i][j] = C[j][i] = dist(i, j);
+            }
+        }
+
+        ll Mk = (1 << lon + 1) - 1;
+        cik(mask, 1, Mk, 1){
+            cik(i, 0, lon, 1){
+                dp[mask][i] = 1e12;
+            }
+        }
+
+        cik(mask, 1, Mk, 1){
+            if(P2.find(mask) != P2.end()){
+                int ult = 31 - __builtin_clz(mask);
+
+                dp[mask][ult] = C[ult][lon + 1];
+                continue;
+            }
+
+            cik(i, 0, lon, 1){
+                if(!((1 << i) & mask)){
+                    continue;
+                }
+                cik(j, 0, lon, 1){
+                    if(i != j && ((1 << j) & mask)){
+                        dp[mask][i] = mn(dp[mask][i],
+                            dp[mask - (1 << i)][j] + C[i][j]);
+                    }
+                }
+            }
+        }
+
+        ll sol = 1e12, all = (1 << lon + 1) - 1;
+        cik(i, 0, lon, 1){
+            sol = mn(sol, dp[all][i] + C[i][lon + 1]);
+        }
+
+        cout << "Case " << t << ": " << sol << "\n";
+
+        P.clear();
+    }
+
+    return 0;
+}
