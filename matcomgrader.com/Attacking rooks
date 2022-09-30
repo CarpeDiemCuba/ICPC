@@ -1,0 +1,193 @@
+/*
+https://matcomgrader.com/problem/9302/attacking-rooks/
+
+Chess inspired problems are a common source of exercises in algorithms classes. Starting with the well known 8-queens problem, several generalizations and variations were made. One of them is the N-rooks problem, which consists of placing N rooks in an N by N chessboard in such a way that they do not attack each other.
+
+Professor Anand presented the N-rooks problem to his students. Since rooks only attack each other when they share a row or column, they soon discovered that the problem can be easily solved by placing the rooks along a main diagonal of the board. So, the professor decided to complicate the problem by adding some pawns to the board. In a board with pawns, two rooks attack each other if and only if they share a row or column and there is no pawn placed between them. Besides, pawns occupy some squares, which gives an additional restriction on which squares the rooks may be placed on.
+
+Given the size of the board and the location of the pawns, tell Professor Anand the maximum number of rooks that can be placed on empty squares such that no two of them attack each other.
+Input
+The rst line contains an integer N(1≤N≤100) representing the number of rows and columns of the board. Each of the next N lines contains a string of N characters. In the i-th of these strings, the j-th character represents the square in the i-th row and j-th column of the board. The character is either "." (dot) or the uppercase letter "X", indicating respectively an empty square or a square containing a pawn.
+Output
+Output a line with an integer representing the maximum number of rooks that can be placed on the empty squares of the board without attacking each other.
+Sample test(s)
+input
+1
+X
+output
+0
+input
+5
+X....
+X....
+..X..
+.X...
+....X
+output
+7
+input
+4
+....
+.X..
+....
+....
+output
+5
+*/
+
+//By Forte11
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+
+const int maxn = 105;
+const int maxm = maxn * maxn;
+const int big = 1e9;
+
+vector<int> Adlist[maxm];
+int mm[maxm], d[maxm];
+
+char A[maxn][maxn];
+int F[maxn][maxn], C[maxn][maxn];
+
+int N, D;
+
+bool bfs(){
+    int i, u, v, len;
+    queue<int> Q;
+
+    for(i = 1; i <= N; i++){
+        if(!mm[i]){
+            d[i] = 0;
+            Q.push(i);
+        }
+        else{
+            d[i] = big;
+        }
+    }
+    d[0] = big;
+    while(!Q.empty()){
+        u = Q.front(); Q.pop();
+        if(u){
+            len = Adlist[u].size();
+            for(i = 0; i < len; i++){
+                v = Adlist[u][i];
+
+                if(d[mm[v]] == big){
+                    d[mm[v]] = d[u] + 1;
+                    Q.push(mm[v]);
+                }
+            }
+        }
+    }
+    return (d[0] != big);
+}
+
+bool dfs(int u){
+    int i, v, len;
+
+    if(u){
+        len = Adlist[u].size();
+
+        for(i = 0; i < len; i++){
+            v = Adlist[u][i];
+
+            if(d[mm[v]] == d[u] + 1){
+                if(dfs(mm[v])){
+                    mm[u] = v;
+                    mm[v] = u;
+                    return true;
+                }
+            }
+        }
+
+        d[u] = big;
+        return false;
+    }
+    return true;
+}
+
+int hopcroft_karp(){
+    int matching = 0, i;
+
+    while(bfs()){
+        for(i = 1; i <= N; i++){
+            if(!mm[i] && dfs(i)){
+                matching++;
+            }
+        }
+    }
+    return matching;
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0); cout.tie(0);
+
+    cin >> D;
+
+    cik(i, 1, D, 1){
+        cik(j, 1, D, 1){
+            cin >> A[i][j];
+        }
+    }
+
+    int K = 1;
+
+    cik(j, 1, D, 1){
+        int i = 1;
+        bool flag = false;
+        while(i <= D){
+            if(A[i][j] == 'X'){
+                if(flag){
+                    K++;
+                    flag = false;
+                }
+            }
+            if(A[i][j] == '.'){
+                F[i][j] = K;
+                flag = true;
+            }
+            i++;
+        }
+        K++;
+    }
+
+    N = K - 1;
+
+    cik(i, 1, D, 1){
+        int j = 1;
+        bool flag = false;
+        while(j <= D){
+            if(A[i][j] == 'X'){
+                if(flag){
+                    K++;
+                    flag = false;
+                }
+            }
+            if(A[i][j] == '.'){
+                C[i][j] = K;
+                flag = true;
+            }
+            j++;
+        }
+        K++;
+    }
+
+    cik(i, 1, D, 1){
+        cik(j, 1, D, 1){
+            int a = F[i][j];
+            int b = C[i][j];
+
+            Adlist[a].push_back(b);
+            Adlist[b].push_back(a);
+        }
+    }
+
+    cout << hopcroft_karp() << "\n";
+
+    return 0;
+}
