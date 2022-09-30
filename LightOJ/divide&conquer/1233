@@ -1,0 +1,103 @@
+/*
+https://lightoj.com/problem/coin-change-iii
+
+In a strange shop there are n types of coins of value A1, A2 ... An. C1, C2, ... Cn denote the number of coins of value A1, A2 ... An respectively. You have to find the number of different values (from 1 to m), which can be produced using these coins.
+
+Input
+Input starts with an integer T (≤ 20), denoting the number of test cases.
+
+Each case starts with a line containing two integers n (1 ≤ n ≤ 100), m (0 ≤ m ≤ 105). The next line contains 2n integers, denoting A1, A2 ... An, C1, C2 ... Cn (1 ≤ Ai ≤ 105, 1 ≤ Ci ≤ 1000). All Ai will be distinct.
+
+Output
+For each case, print the case number and the result.
+
+Sample
+Input	Output
+2
+3 10
+1 2 4 2 1 1
+2 5
+1 4 2 1
+
+Case 1: 8
+Case 2: 4
+*/
+
+//By Forte11
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+
+const int maxn = 105, maxm = 1e5 + 5;
+
+int A[maxn], C[maxn], coin_used[maxm];
+bool B[maxm];
+
+int N, M, Sol;
+
+void clean(){
+    cik(i, 1, M, 1){
+        coin_used[i] = false;
+    }
+    return;
+}
+
+void cuenta_sol(){
+    Sol = 0;
+    cik(i, 1, M, 1){
+        Sol += B[i];
+        B[i] = false;
+    }
+    return;
+}
+
+void solve_dp(){
+    B[0] = true;
+    cik(i, 1, N, 1){
+        clean();
+
+        for(int j = 0; j + A[i] <= M; j++){
+            if(B[j]){
+                int a = j + A[i];
+                if(B[a]){
+                    continue;
+                }
+                if(coin_used[j] < C[i]){
+                    coin_used[a] = coin_used[j] + 1;
+                    B[a] = true;
+                }
+            }
+        }
+    }
+
+    cuenta_sol();
+
+    return;
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+
+    int T; cin >> T;
+    cik(t, 1, T, 1){
+
+        cin >> N >> M;
+
+        cik(i, 1, N, 1){
+            cin >> A[i];
+        }
+        cik(i, 1, N, 1){
+            cin >> C[i];
+        }
+
+        solve_dp();
+
+        cout << "Case " << t << ": " << Sol << "\n";
+    }
+
+    return 0;
+}
