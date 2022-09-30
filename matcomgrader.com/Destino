@@ -1,0 +1,145 @@
+/*
+https://matcomgrader.com/problem/9466/destino/
+
+Odín es uno de los dioses mas reverenciados de la Mitología Nórdica. Se sabe que su sed de sabiduría es interminable y que sacrificaría cualquier cosa por ello. Con el objetivo de obtener sabiduría, se ahorcó a él mismo, se hirió con una lanza e incluso dejó de comer y beber durante nueve días y nueve noches. Más notorio aún, se sacó uno de sus ojos por el derecho a beber en El Pozo de Urd, también conocido como el Pozo del Destino. El pozo está localizado en la raíz de Yggdrasil, el árbol que sostiene los nueve mundos en sus ramas. Como ves, así es como funciona el destino en la Mitología Nórdica. El pozo es el símbolo del pasado, y todos los mundos actuales crecen de él. Si se altera el pasado, uno puede influenciar el presente retroactivamente. Ser capaz de manipular eso, es la base para la magia. En teoría, Odin obtuvo el poder de dar forma al cosmos como él desea completando estos rituales.
+
+Si uno quiere seguir el camino de Odín y ser tan poderoso como él, teóricamente es posible. Solo necesitas seguir su camino. Existen n rituales que deben ser completados y deben hacerse en orden secuencial. Y puedes encontrar la ubicación adecuada para cada ritual en los nueve mundos. Sin embargo, uno debe notar que a diferencia de un dios, las vidas mortales no son particularmente largas. Viajar por los nueve mundos no es tan fácil como uno podría imaginarse. Uno no puede simplemente tomar un vuelo de Midgard a Vanaheimr. El viaje debe ser cuidadosamente planeado para que se haga en la vida de uno. Para el viaje, usted puede comenzar en cualquier ubicación.
+
+Input
+La primera línea de la entrada contiene tres enteros n (1≤n≤10), m (1≤m≤300) y e (1≤e≤4000) indicando el número de rituales que deben hacerse, el número de ubicaciones adecuadas para los rituales y el número de aristas conectando dichas ubicaciones respectivamente.
+
+En la siguiente línea habrán m enteros R0,R1,...,Rm−1 (0≤Ri<n) en el cual Ri representa cuál ritual puede ser realizado en la i-ésima (base 0) ubicación. Finalmente, habrán e líneas cada una con tres enteros u, v y c (0≤u,v<m y 1≤c≤104), esto significa que el número de años que toma viajar de la ubicación u a la v es c. Nota que todas las aristas son unidireccionales, debido a que viajar entre los nueve mundos no es tan sencillo como en Midgard (el mundo donde los humanos viven).
+Output
+Imprima el mínimo número de años que tomará finalizar cada ritual secuencialmente desde el número 0 hasta el n−1. Si es imposible terminar los rituales en dicho orden, entonces imprima −1.
+
+Sample test(s)
+input
+3 3 2
+0 1 2
+0 1 20
+1 2 30
+output
+50
+input
+3 5 4
+0 0 1 2 2
+0 2 10
+1 2 100
+2 3 90
+2 4 900
+output
+100
+*/
+
+//By Forte11
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+#define ll long long
+#define ull unsigned long long
+#define bi pair<int, int>
+#define f first
+#define s second
+#define mkp make_pair
+
+const int maxn = 305;
+
+int C[maxn][maxn], ID[maxn], Kmino[maxn];
+
+int N, M, K;
+
+vector<int> Tipo[15];
+vector<bi > Adlist[maxn];
+
+void Dijkstra(int n){
+    cik(i, 0, maxn - 5, 1){
+        C[n][i] = -1;
+    }
+
+    priority_queue<bi, vector<bi >, greater<bi > > Q;
+    Q.push(mkp(0, n));
+
+    while(!Q.empty()){
+        int cost = Q.top().f;
+        int nod = Q.top().s;
+        Q.pop();
+
+        if(C[n][nod] != -1){
+            continue;
+        }
+        C[n][nod] = cost;
+
+        int lon = Adlist[nod].size();
+
+        cik(i, 0, lon - 1, 1){
+            int nn = Adlist[nod][i].f;
+            int ncost = cost + Adlist[nod][i].s;
+
+            if(C[n][nn] == -1){
+                Q.push(mkp(ncost, nn));
+            }
+        }
+    }
+    return;
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0); cout.tie(0);
+
+    cin >> N >> K >> M;
+
+    cik(i, 0, K - 1, 1){
+        cin >> ID[i];
+        Tipo[ID[i]].push_back(i);
+    }
+
+    cik(i, 1, M, 1){
+        int a, b, c; cin >> a >> b >> c;
+        Adlist[a].push_back(mkp(b, c));
+    }
+
+    cik(i, 0, K - 1, 1){
+        Dijkstra(i);
+    }
+
+    cik(i, 0, K - 1, 1){
+        if(ID[i]){
+            Kmino[i] = 1e9;
+        }
+    }
+
+    cik(i, 0, N - 2, 1){
+        int lon = Tipo[i].size();
+        int lon2 = Tipo[i + 1].size();
+
+        cik(j, 0, lon - 1, 1){
+            cik(k, 0, lon2 - 1, 1){
+                int n1 = Tipo[i][j];
+                int n2 = Tipo[i + 1][k];
+
+                if(C[n1][n2] != -1){
+                    Kmino[n2] = min(Kmino[n2], Kmino[n1] + C[n1][n2]);
+                }
+            }
+        }
+    }
+
+    int Sol = 1e9;
+    cik(i, 0, K - 1, 1){
+        if(ID[i] == N - 1){
+            Sol = min(Sol, Kmino[i]);
+        }
+    }
+
+    if(Sol != 1e9){
+        cout << Sol << "\n";
+    }else{
+        cout << "-1\n";
+    }
+
+    return 0;
+}
