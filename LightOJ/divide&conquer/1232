@@ -1,0 +1,81 @@
+/*
+https://lightoj.com/problem/coin-change-ii
+
+In a strange shop there are n types of coins of value A1, A2 ... An. You have to find the number of ways you can make K using the coins. You can use any coin at most K times.
+
+For example, suppose there are three coins 1, 2, 5. Then if K = 5, the possible ways are:
+
+(1, 1, 1, 1, 1)
+(1, 1, 1, 2)
+(1, 2, 2)
+(5)
+So, 5 can be made in 4 ways.
+
+Input
+Input starts with an integer T (≤ 100), denoting the number of test cases.
+
+Each case starts with a line containing two integers n (1 ≤ n ≤ 100) and K (1 ≤ K ≤ 10000). The next line contains n integers, denoting A1, A2 ... An (1 ≤ Ai ≤ 500). All Ai will be distinct.
+
+Output
+For each case, print the case number and the number of ways K can be made. Result can be large, so, print the result modulo 100000007.
+
+Sample
+Input	Output
+2
+3 5
+1 2 5
+4 20
+1 2 3 4
+
+Case 1: 4
+Case 2: 108
+*/
+
+//By Forte11
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+
+const int maxn = 105, maxm = 1e4 + 5, mod = 100000007;
+
+int A[maxn], dp[maxm];
+
+int N, K;
+
+void clean(){
+    cik(i, 0, K, 1){
+        dp[i] = 0;
+    }
+    return;
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+
+    int T; cin >> T;
+    cik(t, 1, T, 1){
+        cin >> N >> K;
+
+        cik(i, 1,  N, 1){
+            cin >> A[i];
+        }
+
+        dp[0] = 1;
+
+        cik(i, 1, N, 1){
+            cik(j, A[i], K, 1){
+                dp[j] = (dp[j] + dp[j - A[i]]) % mod;
+            }
+        }
+
+        cout << "Case " << t << ": " << dp[K] << "\n";
+
+        clean();
+
+    }
+    return 0;
+}
