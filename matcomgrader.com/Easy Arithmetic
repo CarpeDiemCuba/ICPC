@@ -1,0 +1,88 @@
+/*
+https://matcomgrader.com/problem/9272/easy-arithmetic/
+
+Eva is a third-grade elementary school student. She has just learned how to perform addition and subtraction of arbitrary-precision integers. Her homework is to evaluate some expressions. It is boring, so she decided to add a little trick to the homework. Eva wants to add some plus and minus signs to the expression to make its value as large as possible.
+Input
+The single line of the input file contains the original arithmetic expression.  It contains only digits, plus ('+') and minus ('-') signs. 
+
+The original expression is correct, that is: 
+numbers have no leading zeroes;
+there are no two consecutive signs;
+the last character of the expression is a digit.
+The length of the original expression does not exceed 1000 characters.
+Output
+Output a single line — the original expression with some plus and minus signs added. Output expression must satisfy the same correctness constraints as the original one. Its value must be as large as possible.
+Sample test(s)
+input
+10+20-30
+output
+10+20-3+0
+input
+-3-4-1
+output
+-3-4-1
+input
++10
+output
++10
+
+*/
+
+//By Forte11
+#include <bits/stdc++.h>
+using namespace std;
+
+const int MAX = 1e6 + 5;
+string cad;
+string cad1;
+string cad2;
+bool flags[MAX];
+
+int main(){
+    ios_base::sync_with_stdio(0);
+    cin.tie(0); cout.tie(0);
+
+    cin >>cad;
+    cad.reserve(2000005);
+    cad1.reserve(2000005);
+    cad2.reserve(2000005);
+
+
+    for(int i = 0; i < cad.length(); i++){
+        if(cad[i] == '-' && cad[i+2] != '-' && cad[i+2] != '+' && cad[i+2] != 0){
+            flags[i+1] = true;
+        }
+    }
+
+    for(int i = 0; i < cad.length(); i++){
+        cad1.push_back(cad[i]);
+        if(flags[i]) cad1.push_back('+');
+    }
+    bool flag = 1;
+    for(int i = 0; i < cad1.length(); i++){
+        if(cad1[i] == '+') flag = 1;
+        if(cad1[i] == '-') flag = 0;
+
+        if((cad1[i] == '+' || (cad1[i] == '0' && !flag) ) && cad1[i+1] == '0'){
+            while(cad1[i+1] == '0'){
+                cad2.push_back(cad1[i]);
+                if(cad1[i] != '+')
+                    cad2.push_back('+');
+                i++;
+            }
+        }
+        cad2.push_back(cad1[i]);
+    }
+
+    for(int i = 0; i < cad2.length(); i++){
+        cout <<cad2[i];
+        if(i > 0 && cad2[i-1] == '+' && cad2[i] == '0' && cad2[i+1] != '0' && isdigit(cad2[i+1]))
+            cout <<"+";
+    }
+    cout <<"\n";
+    return  0;
+}
+/*
+10+20-30000
+10+20-3+0+0+0+0
+*/
