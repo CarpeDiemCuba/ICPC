@@ -1,0 +1,52 @@
+/*
+https://matcomgrader.com/problem/9484/aprendiendo-a-permutar/
+
+Fito aprendió hoy sobre permutaciones, pero como buen amante de la computación, él desea algo más que n!. Fito quiere imprimir todas las permutaciones de n elementos. Para ello, él te pide que hagas un programa para verificar el suyo: Dado un entero n, listar todas las permutaciones de los números 1,2,...,n en orden lexicográfico.
+Input
+Línea 1: Un entero n (1≤n≤9).
+
+Output
+Línea 1 ... n!: La i-ésima línea contendrá la i-ésima permutación, n números separados por espacio.
+Sample test(s)
+input
+3
+output
+1 2 3
+1 3 2
+2 1 3
+2 3 1
+3 1 2
+3 2 1
+*/
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+int main()
+{
+    cin.tie(0);
+    ios_base::sync_with_stdio(0);
+
+    int N;
+    cin >>N;
+
+    vector<int> arr;
+
+    for(int i = 1; i <= N; i++){
+        arr.push_back(i);
+    }
+
+    do{
+        for(int i = 0; i < arr.size(); i++){
+            if(i != arr.size()-1){
+                cout <<arr[i] <<" ";
+            }else{
+                cout <<arr[i] <<"\n";
+            }
+        }
+    }while(next_permutation(arr.begin(), arr.end()));
+
+
+    return 0;
+}
