@@ -1,0 +1,76 @@
+/*
+https://lightoj.com/problem/rooks
+
+A rook is a piece used in the game of chess which is played on a board of square grids. A rook can only move vertically or horizontally from its current position and two rooks attack each other if one is on the path of the other.
+
+In the following figure, the dark squares represent the reachable locations for rook R1 from its current position. The figure also shows that the rook R1 and R2 are in attacking positions where R1 and R3 are not. R2 and R3 are also in non-attacking positions.
+
+Rooks
+
+Now, given two numbers n and k, your job is to determine the number of ways one can put k rooks on an n x n chessboard so that no two of them are in attacking positions.
+
+Input
+Input starts with an integer T (≤ 350), denoting the number of test cases.
+
+Each case contains two integers n (1 ≤ n ≤ 30) and k (0 ≤ k ≤ n2).
+
+Output
+For each case, print the case number and total number of ways one can put the given number of rooks on a chessboard of the given size so that no two of them are in attacking positions. You may safely assume that this number will be less than 1017.
+
+Sample
+Input	Output
+8
+1 1
+2 1
+3 1
+4 1
+4 2
+4 3
+4 4
+4 5
+
+Case 1: 1
+Case 2: 4
+Case 3: 9
+Case 4: 16
+Case 5: 72
+Case 6: 96
+Case 7: 24
+Case 8: 0
+*/
+
+//By Forte11
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+#define ull unsigned long long
+#define mn(a, b) ((a) < (b) ? (a) : (b))
+
+ull sol;
+
+ull solve(int F, int C, int K){
+    if(mn(F, C) < K){
+        return 0;
+    }
+    if(!K){
+        return 1;
+    }
+    return solve(F - 1, C, K) + C * solve(F - 1, C - 1, K - 1);
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+
+    int T; cin >> T;
+    cik(t, 1, T, 1){
+        int N, K; cin >> N >> K;
+        cout << "Case " << t << ": " <<  solve(N, N, K) << "\n";
+        sol = 0;
+    }
+    return 0;
+}
+
