@@ -1,0 +1,85 @@
+/*
+https://lightoj.com/problem/brush-2
+
+After the long contest, Samee returned home and got angry after seeing his room dusty. Who likes to see a dusty room after a brain storming programming contest? After checking a bit he found a brush in his room which has width w. Dusts are defined as 2D points. And since they are scattered everywhere, Samee is a bit confused what to do. So, he attached a rope with the brush such that it can be moved horizontally (in X axis) with the help of the rope but in straight line. He places it anywhere and moves it. For example, the y co-ordinate of the bottom part of the brush is 2 and its width is 3, so the y coordinate of the upper side of the brush will be 5. And if the brush is moved, all dusts whose y co-ordinates are between 2 and 5 (inclusive) will be cleaned. After cleaning all the dusts in that part, Samee places the brush in another place and uses the same procedure. He defined a move as placing the brush in a place and cleaning all the dusts in the horizontal zone of the brush.
+
+You can assume that the rope is sufficiently large. Now Samee wants to clean the room with minimum number of moves. Since he already had a contest, his head is messy. So, help him.
+
+You can assume that the rope is sufficiently large. Now Samee wants to clean the room with minimum number of moves. Since he already had a contest, his head is messy. So, help him.
+
+Input
+Input starts with an integer T (≤ 15), denoting the number of test cases.
+
+Each case starts with a blank line. The next line contains two integers N (1 ≤ N ≤ 50000) and w (1 ≤ w ≤ 10000), means that there are N dust points. Each of the next N lines will contain two integers: xi yi, denoting coordinates of the dusts. You can assume that (-109 ≤ xi, yi ≤ 109) and all points are distinct.
+
+Output
+For each case print the case number and the minimum number of moves.
+
+Sample
+Input	Output
+2
+
+3 2
+0 0
+20 2
+30 2
+
+3 1
+0 0
+20 2
+30 2
+
+Case 1: 1
+Case 2: 2
+*/
+
+
+//By Forte11
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+#define bi pair<int, int>
+#define x first
+#define y second
+
+const int maxn = 5e4 + 5;
+
+bi A[maxn];
+
+bool compare(bi a, bi b){
+    return a.y < b.y;
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+
+    int T;
+    cin >> T;
+
+    cik(i, 1, T, 1){
+        int N, W;
+        cin >> N >> W;
+
+        cik(i, 1, N, 1){
+            cin >> A[i].x >> A[i].y;
+        }
+
+        sort(A + 1, A + N + 1, compare);
+
+        int Fy = A[1].y, sol = 1;
+
+        cik(i, 2, N, 1){
+            if(Fy + W  < A[i].y){
+                Fy = A[i].y;
+                sol++;
+            }
+        }
+
+        cout << "Case " << i << ": " << sol << "\n";
+    }
+    return 0;
+}
