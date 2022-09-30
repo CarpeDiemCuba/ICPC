@@ -1,0 +1,157 @@
+/*
+https://lightoj.com/problem/critical-links
+
+In a computer network a link L, which interconnects two servers, is considered critical if there are at least two servers A and B such that all network interconnection paths between A and B pass through L. Removing a critical link generates two disjoint sub-networks such that any two servers of a sub-network are interconnected.
+
+For example, the network shown in figure 1 has three critical links that are marked red: 0 - 1, 3 - 4 and 6 - 7 in figure 2.
+
+	
+Figure 1: Original Graph	Figure 2: The Critical Links
+It is known that:
+
+The connection links are bi-directional.
+A server is not directly connected to itself.
+Two servers are interconnected if they are directly connected or if they are interconnected with the same server.
+The network can have stand-alone sub-networks.
+Write a program that finds all critical links of a given computer network.
+
+Input
+Input starts with an integer T (≤ 15), denoting the number of test cases.
+
+Each case starts with a blank line. The next line will contain n (0 ≤ n ≤ 10000) denoting the number of nodes. Each of the next n lines will contain some integers in the following format:
+
+u (k) v1 v2 ... vk
+
+Where u is the node identifier, k is the number of adjacent nodes; v1, v2 ... vk are the adjacent nodes of u. You can assume that there are at most 100000 edges in total in a case.
+
+Output
+For each case, print the case number first. Then you should print the number of critical links and the critical links, one link per line, starting from the beginning of the line, as shown in the sample output below. The links are listed in ascending order according to their first element and then second element. Since the graph is bidirectional, print a link u v if u < v.
+
+Sample
+Input	Output
+3
+
+8
+0 (1) 1
+1 (3) 2 0 3
+2 (2) 1 3
+3 (3) 1 2 4
+4 (1) 3
+7 (1) 6
+6 (1) 7
+5 (0)
+
+0
+
+2
+0 (1) 1
+1 (1) 0
+
+Case 1:
+3 critical links
+0 - 1
+3 - 4
+6 - 7
+Case 2:
+0 critical links
+Case 3:
+1 critical links
+0 - 1
+*/
+
+//By Forte11
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+#define bi pair<int, int>
+#define f first
+#define s second
+#define mkp make_pair
+
+const int maxn = 1e4 + 5;
+
+vector<int> V[maxn];
+vector<bi > Sol;
+
+int low[maxn], disc[maxn], father[maxn];
+int D, dfs_root, dfs_child;
+
+void clean(){
+    memset(low, 0, sizeof(low));
+    memset(disc, 0, sizeof(disc));
+    memset(father, 0, sizeof(father));
+    D = dfs_root = dfs_child = 0;
+
+    Sol.clear();
+    cik(i, 0, maxn - 5, 1) V[i].clear();
+
+    return;
+}
+
+void dfs(int nod){
+    low[nod] = disc[nod] = ++D;
+
+    int len = V[nod].size();
+    cik(i, 0, len - 1, 1){
+        int nn = V[nod][i];
+
+        if(!disc[nn]){
+            father[nn] = nod;
+            dfs(nn);
+
+            if(low[nn] > disc[nod]){
+                Sol.push_back(mkp(min(nod, nn), max(nod, nn)));
+            }
+            low[nod] = min(low[nod], low[nn]);
+        }else if(nn != father[nod]){
+            low[nod] = min(low[nod], disc[nn]);
+        }
+    }
+    return;
+}
+
+int main()
+{
+//    ios_base::sync_with_stdio(0); cin.tie(0);
+
+//    freopen(".in", "r", stdin);
+
+    int T; scanf("%d", &T);
+
+    cik(t, 1, T, 1){
+        int N; scanf("%d", &N);
+
+        cik(i, 1, N, 1){
+            int a, b; scanf("%d", &a);
+            char c; scanf("%c%c%d%c", &c, &c, &b, &c);
+
+            cik(j, 1, b, 1){
+                int d; scanf("%d", &d);
+
+                V[a].push_back(d);
+            }
+        }
+
+        cik(i, 0, N - 1, 1){
+            dfs_root = i;
+            if(!disc[i]) dfs(i);
+        }
+
+        sort(Sol.begin(), Sol.end());
+
+        int len = Sol.size();
+
+        printf("Case %d:\n", t);
+        printf("%d critical links\n", len);
+
+        cik(i, 0, len - 1, 1){
+            printf("%d - %d\n", Sol[i].f, Sol[i].s);
+        }
+        clean();
+    }
+
+
+    return 0;
+}
