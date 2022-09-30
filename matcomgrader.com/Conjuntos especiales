@@ -1,0 +1,87 @@
+/*
+https://matcomgrader.com/problem/5773/conjuntos-especiales/
+
+Un conjunto de enteros S, se dice especial , si  uno de los elementos que lo forma, coincide con su cardinalidad y no contiene ningún subconjunto propio que sea especial. Algunos ejemplos de este tipo de conjuntos son [ 2 , 3], [6, 10, 11, 9, 5 ], [ 1 ], etc. Para este problema, usted debe calcular la cantidad de subconjuntos especiales que contiene el conjunto [1, 2, …, N]. Por ejemplo, si N=3, existen solamente 2 subconjuntos especiales: [1] y [2, 3].
+
+Input
+
+Línea 1 : Un entero T, la cantidad de casos (1≤T≤105).
+Línea 2…T+1 : Un entero N por línea (1≤N≤109).
+
+Output
+
+Línea 1…T : Por cada línea, imprima la cantidad de subconjuntos especiales de [1, 2, …, N]. Como este número puede ser enorme, calcule el resultado módulo 987654321.
+
+Sample test(s)
+input
+2
+1
+3
+output
+1
+2
+*/
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+typedef long long big;
+const int MOD = 987654321;
+
+struct matrix_two_two{
+    big a_11, a_12, a_21, a_22;
+
+    matrix_two_two(){
+         a_11 = 0;
+         a_12 = 1;
+         a_21 = 1;
+         a_22 = 1;
+    }
+
+    matrix_two_two(big a_11, big a_12, big a_21, big a_22) : a_11(a_11), a_12(a_12), a_21(a_21), a_22(a_22){}
+
+};
+
+matrix_two_two multipc(matrix_two_two A, matrix_two_two B){
+    matrix_two_two sol;
+
+    sol.a_11 = ((A.a_11 * B.a_11) % MOD + (A.a_12 * B.a_21)) % MOD;
+    sol.a_12 = ((A.a_11 * B.a_12) % MOD + (A.a_12 * B.a_22)) % MOD;
+    sol.a_21 = ((A.a_21 * B.a_11) % MOD + (A.a_22 * B.a_12)) % MOD;
+    sol.a_22 = ((A.a_21 * B.a_12) % MOD + (A.a_22 * B.a_22)) % MOD;
+
+    return sol;
+}
+
+matrix_two_two PotVeloz(matrix_two_two A, int N){
+    if(N == 1)
+        return A;
+    if(N == 0){
+        A.a_11 = 1, A.a_22 = 1, A.a_12 = 0, A.a_21 = 0;
+        return A;
+    }
+    if(N % 2 == 0){
+        matrix_two_two sol = PotVeloz(A, N / 2);
+        return multipc(sol, sol);
+    }
+    else
+        return multipc(A, PotVeloz(A, N - 1));
+}
+
+int main(){
+    //freopen(".in", "r", stdin);
+
+    int test;
+
+    cin >> test;
+
+    while(test--){
+        big n;
+        matrix_two_two res;
+        cin >> n;
+
+        cout << PotVeloz(res, n).a_21 << '\n';
+    }
+    return 0;
+}
