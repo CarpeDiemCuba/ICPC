@@ -1,0 +1,122 @@
+/*
+https://matcomgrader.com/problem/9464/construyendo-la-red-de-carreteras/
+
+El vendedor viajero (traveling salesman) llega al reino de Lazyland. Él planea comenzar en la capital, visitar cada ciudad y luego retornar a la capital. Él conoce las coordenadas de cada ciudad, pero no se han construido caminos aún. Es obvio que no es posible visitar todos los destinos si alguna ciudad no está conectada a todas las otras.
+
+Asume que existen n ciudades. Sus coordenadas son (x1,y1),...,(xn,yn), y (x1,y1) es la capital. El rey quiere ayudar al viajero. Por ello, ordenó construir los caminos para el viajero. No obstante, las personas en el reino son muy perezosas.
+
+Debido a que los ingenieros son perezosos, ellos solo pueden construir caminos entre dos ciudades (xi,yi) y (xj,yj) usando segmentos horizontales y verticales. Por lo tanto la longitud del camino será |xi−xj|+|yi−yj|.
+
+Debido a que los trabajadores son muy perezosos también, ellos no construirán más de n−1 caminos para el viajero — ellos escucharon que n−1 caminos son suficiente para conectar todos los destinos. Nota que el vendedor solo cambia de caminos en las ciudades.
+
+El vendedor puede seleccionar los caminos a construir. Puedes decirle al vendedor cuál es la longitud de la ruta más corta que puede usar para visitar cada ciudad y regresar a la capital ?
+
+Input
+La primera línea contiene un entero n (1≤n≤10000) representando el número de destinos (ciudades). Las siguientes n líneas contendrán dos enteros cada una x, y (−1000≤x,y≤1000), representando las coordenadas de las ciudades. Las coordenadas de la capital es la primera de esas líneas. Dos ciudades distintas no tendrán las mismas coordenadas.
+Output
+Imprime la longitud de la ruta más corta que el vendedor puede utilizar para visitar cada destino y regresar al origen.
+Sample test(s)
+input
+3
+1 1
+2 2
+3 3
+output
+8
+input
+4
+2 1
+-1 2
+-2 -1
+1 -2
+output
+24
+input
+6
+1 2
+2 3
+2 2
+3 4
+4 3
+3 1
+output
+16
+
+*/
+
+//By Forte11
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+
+const int maxn = 1e5 + 5;
+
+int N, Sol;
+
+bool B[maxn];
+int X[maxn], Y[maxn];
+int C[maxn];
+
+void inic(){
+    cik(i, 2, N, 1){
+        C[i] = 1e9;
+    }
+    return;
+}
+
+int calc_dist(int a, int b){
+    return abs(X[a] - X[b]) + abs(Y[a] - Y[b]);
+}
+
+void Prim(){
+    int K = N;
+
+    int nod = 1;
+    while(K--){
+        Sol += C[nod];
+
+        B[nod] = true;
+
+        cik(i, 1, N, 1){
+            if(!B[i]){
+                int dist = calc_dist(i, nod);
+                C[i] = min(C[i], dist);
+            }
+        }
+
+        int best, c = 1e9;
+
+        cik(i, 1, N, 1){
+            if(c > C[i] && !B[i]){
+                c = C[i];
+                best = i;
+            }
+        }
+        nod = best;
+    }
+    return;
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0); cout.tie(0);
+
+    cin >> N;
+
+    cik(i, 1, N, 1){
+        cin >> X[i] >> Y[i];
+    }
+
+    inic();
+
+    Prim();
+
+    cout << (Sol << 1) << "\n";
+
+    return 0;
+}
+
+
