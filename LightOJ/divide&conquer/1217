@@ -1,0 +1,74 @@
+/*
+https://lightoj.com/problem/neighbor-house-ii
+
+A soap company wants to advertise their product in a local area. In this area, there are n houses and the houses are placed in circular fashion, such that house 1 has two neighbors: house 2 and n. House 5 has two neighbors: house 4 and 6. House n has two neighbors, house n-1 and 1.
+
+Now the soap company has an estimation of the number of soaps they can sell on each house. But for their advertising policy, if they sell soaps to a house, they can't sell soaps to its two neighboring houses. No your task is to find the maximum number of estimated soaps they can sell in that area.
+
+Input
+Input starts with an integer T (≤ 100), denoting the number of test cases.
+
+Each case starts with a line containing an integer n (2 ≤ n ≤ 1000). The next line contains n space separated integers, where the ith integer denotes the estimated number of soaps that can be sold to the ith house. Each of these integers will lie in the range [1, 1000].
+
+Output
+For each case, print the case number and the maximum number of estimated soaps that can be sold in that area.
+
+Sample
+Input	Output
+3
+2
+10 100
+3
+10 2 11
+4
+8 9 2 8
+
+Case 1: 100
+Case 2: 11
+Case 3: 17
+*/
+
+//By Forte11
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+
+const int maxn = 1e3 + 5;
+
+int A[maxn], dp[maxn][3];
+
+int main()
+{
+    int T; scanf("%d", &T);
+    cik(t, 1, T, 1){
+        int N; scanf("%d", &N);
+
+        cik(i, 1, N, 1){
+            scanf("%d", &A[i]);
+        }
+
+        int Sol = 0;
+
+        cik(i, 1, N - 1, 1){
+            dp[i][0] = max(dp[i - 1][0], dp[i - 1][1]);
+            dp[i][1] = max(dp[i - 1][0] + A[i], dp[i - 1][1]);
+        }
+
+        Sol = max(dp[N - 1][0], dp[N - 1][1]);
+
+        memset(dp, 0, sizeof(dp));
+
+        cik(i, 2, N, 1){
+            dp[i][0] = max(dp[i - 1][0], dp[i - 1][1]);
+            dp[i][1] = max(dp[i - 1][0] + A[i], dp[i - 1][1]);
+        }
+
+        Sol = max(max(dp[N][0], dp[N][1]), Sol);
+
+        printf("Case %d: %d\n", t, Sol);
+    }
+
+    return 0;
+}
