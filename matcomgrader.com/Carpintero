@@ -1,0 +1,79 @@
+/*
+https://matcomgrader.com/problem/9476/carpintero/
+
+Felipe es el tío de Fito y es el carpintero del barrio. Casualmente Fito necesitaba una mesa para poner todos sus trofeos obtenidos en las competencias de programación del ACM-ICPC. Para ello, Fito dibujó en un papel la forma de la mesa que el deseaba. Al ver el dibujo, Felipe se preocupó un poco por lo complicado del mismo y claro está, Felipe necesita saber el área de la mesa para anticipar la cantidad de madera que debe cortar.
+
+
+
+Luego de mucho trabajo, Felipe logró hacerle la mesa a Fito. Felipe está un poco preocupado por si futuros clientes le hacen peticiones similares. Él tendría que esforzarse mucho solamente para calcular el área de la mesa. Felipe desea pedirte un favor, hacer un programa que dado las especificaciones de una pieza de madera, determine el área de la misma.
+
+Las piezas de maderas tendrán forma de polígonos simples, es decir, que la linea poligonal que sirve de frontera no se cruza consigo misma.
+
+Input
+Línea 1: Un entero n (3≤n≤500), la cantidad de lados de la pieza.
+Línea 2 .. n+1: La (i+1)-ésima línea contendrá las coordenadas enteras x,y (0≤x,y≤104) del i-ésimo vértice de la pieza. El i-ésimo vértice es adyacente al i+1 para todo i en el rango 1,...,n−1 y los vértices 1 y n son adyacentes también.
+Output
+Línea 1: El área de la pieza con un error absoluto de 0.1 o menos.
+
+Sample test(s)
+input
+4
+2 0
+2 2
+0 2
+0 0
+output
+4
+input
+3
+0 0
+0 2
+3 0
+output
+3
+
+*/
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define X real()
+#define Y imag()
+
+typedef complex<double> P;
+typedef vector<P> Pol;
+
+double cross(P a, P b){
+    return a.X*b.Y - a.Y*b.X;
+}
+
+double area(Pol pol){
+    double A = 0; int n = pol.size();
+    for(int i = 0; i < n; i++){
+        A += cross(pol[i], pol[(i+1)%n]);
+    }
+    return A/2;
+}
+
+int main()
+{
+    cin.tie(0);
+    ios_base::sync_with_stdio(0);
+
+    int N;
+
+    Pol pol;
+
+    cin >>N;
+
+    for(int i = 0; i < N; i++){
+        double x, y;
+        cin >>x >>y;
+        pol.push_back( P(x, y) );
+    }
+
+    cout <<setprecision(3) <<fixed << abs(area(pol)) <<"\n";
+
+    return 0;
+}
