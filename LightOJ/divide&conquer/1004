@@ -1,0 +1,115 @@
+/*
+https://lightoj.com/problem/monkey-banana-problem
+
+You are in the world of mathematics to solve the great "Monkey Banana Problem". It states that, a monkey enters into a diamond shaped two dimensional array and can jump in any of the adjacent cells down from its current position (see figure). While moving from one cell to another, the monkey eats all the bananas kept in that cell. The monkey enters into the array from the upper part and goes out through the lower part. Find the maximum number of bananas the monkey can eat.
+
+Banana Map
+
+Input
+Input starts with an integer T (≤ 50), denoting the number of test cases.
+
+Every case starts with an integer N (1 ≤ N ≤ 100). It denotes that, there will be 2*N - 1 rows. The ith (1 ≤ i ≤ N) line of the next N lines contains exactly i numbers. Then there will be N - 1 lines. The jth (1 ≤ j < N) line contains N - j integers. Each number is greater than zero and less than 215.
+
+Output
+For each case, print the case number and maximum number of bananas eaten by the monkey.
+
+Sample
+Input	Output
+2
+4
+7
+6 4
+2 5 10
+9 8 12 2
+2 12 7
+8 2
+10
+2
+1
+2 3
+1
+
+Case 1: 63
+Case 2: 5
+*/
+
+
+//By Forte11
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+#define acik(i, a, b, c) for(int i =(a); i >=(b); i -=(c))
+#define mx(a, b) ((a) > (b) ? (a) : (b))
+
+const int maxn = 1105;
+
+int A[maxn][maxn], C[maxn][maxn];
+
+int N;
+
+void clean(){
+    cik(i, 1, N, 1){
+        cik(j, 1, i, 1){
+            C[i][j] = 0;
+        }
+    }
+    acik(i, N - 1, 1, 1){
+        cik(j, 1, i, 1){
+            C[2 * N - i][j] = 0;
+        }
+    }
+    return;
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+
+    //freopen(".in", "r", stdin);
+    //freopen(".out", "w", stdout);
+
+    int T;
+    cin >> T;
+    cik(t, 1, T, 1){
+        cin >> N;
+
+        cik(i, 1, N, 1){
+            cik(j, 1, i, 1){
+                cin >> A[i][j];
+            }
+        }
+
+        acik(i, N - 1, 1, 1){
+            cik(j, 1, i, 1){
+                cin >> A[2 * N - i][j];
+            }
+        }
+
+        cik(i, 1, N, 1){
+            cik(j, 1, i, 1){
+                C[i][j] = mx(C[i - 1][j - 1], C[i - 1][j]) + A[i][j];
+            }
+        }
+        acik(i, N - 1, 1, 1){
+            cik(j, 1, i, 1){
+                C[2 * N - i][j] = mx(C[2 * N - i - 1][j], C[2 * N - i - 1][j + 1]) + A[2 * N - i][j];
+            }
+        }
+
+        cout << "Case " << t << ": " << C[2 * N - 1][1] << "\n";
+        /*
+        cik(i, 1, 2 * N + 1, 1){
+            cik(j, 1, i, 1){
+                cout << C[i][j] << " ";
+            }
+            cout << "\n";
+        }
+        */
+        clean();
+    }
+
+    return 0;
+}
