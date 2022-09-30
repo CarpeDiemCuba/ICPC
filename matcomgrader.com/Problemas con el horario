@@ -1,0 +1,89 @@
+/*
+https://matcomgrader.com/problem/9245/problemas-con-el-horario/
+
+La creación del horario de los turnos de clase en la facultad siempre es bastante difícil porque hay que tener en cuenta múltiples parámetros, como la cantidad de aulas, el hecho de que los profesores pueden dar varios turnos y otros cuestiones similares. Después de mucho trabajo se logró hacer un horario para el nuevo curso pero nos topamos con un problema imprevisto. Debido a las acciones de mantenimiento que se están haciendo en la facultad hay un grupo de aulas que no pueden ser utilizadas. Como volver a hacer el horario implica mucho trabajo, se decidió que lo mejor es usar todas las aulas que se tienen disponibles y mandar a otras facultades a los estudiantes que no podemos acomodar. Para esto lo que se hizo fue decidir que turnos se darán en la facultad y enviar el resto a otras facultades. Como esta solución implica que los estudiantes se deben mover entre una facultad y otra, se quiere que la cantidad de turnos que no se den en nuestra facultad sea la menor posible para minimizar las molestias ocasionadas. Por supuesto los turnos que demos en la facultad deben poderse asignar cada uno a un aula de forma que no ocurran dos turnos distintos al mismo tiempo en la misma aula. Podemos asumir que el tiempo entre que acaba un turno y el aula esta lista para ser usada es cero. Dados la hora de inicio y de fin de cada curso y la cantidad de aulas que podemos usar se quiere calcular la menor cantidad de turnos que deben darse en otras facultades.
+Input
+La primera línea de la entrada contiene dos enteros N (1≤N≤600) y M (1≤M≤1000) que son la cantidad de turnos y la cantidad de aulas disponibles respectivamente. Le siguen N líneas cada una describe un turno de clase con dos enteros A y B que son la hora de inicio y de fin, donde 1≤A<B≤10000.
+Output
+﻿La salida es una sola línea con la menor cantidad de turnos que no son impartidos en la facultad.
+
+Sample test(s)
+input
+8 2
+1 3
+3 5
+2 4
+4 6
+1 2
+2 3
+3 4
+4 5
+output
+2
+*/
+#include <bits/stdc++.h>
+
+using namespace std;
+
+struct par{
+    int a, b;
+    par(int aa, int bb){
+        a = aa; b = bb;
+    }
+    par(){par(0, 0);}
+    bool operator < (const par &p1) const{
+        return b > p1.b;
+    }
+};
+
+const int MAX = 1e5 + 5;
+
+bool cmp(const par &p1, const par &p2){
+    return p1.b < p2.b;
+}
+
+par arr[MAX];
+
+multiset<int, greater<int> > fines;
+
+int main(){
+    cin.tie(0);
+    ios_base::sync_with_stdio(0);
+
+    int N, M;
+    cin >>N >>M;
+
+    for(int i = 0; i < N; i++){
+        int a, b;
+        cin >>a >>b;
+        arr[i] = par(a, b);
+    }
+
+    int s = 0;
+
+    sort(arr, arr+N, cmp);
+
+    for(int i = 0; i < N; i++){
+        auto itr = fines.lower_bound( arr[i].a );
+        if(itr != fines.end()){
+            fines.erase(itr);
+            fines.insert(arr[i].b);
+            s++;
+        }else if(fines.size() < M){
+            fines.insert(arr[i].b);
+            s++;
+        }
+    }
+
+    cout <<N-s <<"\n";
+    return 0;
+}
+
+/*
+5 2
+1 2
+2 3
+3 5
+4 5
+2 2
+*/
