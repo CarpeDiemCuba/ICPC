@@ -1,0 +1,64 @@
+/*
+https://lightoj.com/problem/how-cow
+
+Mr Kopa Samsu is a farmer. He has a land of rectangular shape. But there are cows that disturb him a lot. The cows use to enter his land and ruin his crops. Now Mr Kopa Samsu has become smarter. He has a GPS system that will help him to know the position of the cows. So, you can think his land as a 2D grid, and cows can be treated as points. Now you are given the information of his land and cows. You have to tell him whether a cow is inside his land or not.
+
+Input
+Input starts with an integer T (≤ 50), denoting the number of test cases.
+
+The first line of each case contains four integers x1 y1 x2 y2, where (x1, y1) is the lower left coordinate of his land and (x2, y2) is the upper right coordinate of his land. You can assume that the sides of the land are axis parallel. The next line contains an integer M (1 ≤ M ≤ 100) denoting the number of cows. Each of the next M lines contains two integers each denoting x y - the position of a cow. You can safely assume that no cow will lie on the boundary of the rectangle. All the coordinates will lie in the range [0, 10000].
+
+Output
+For each case you have to print the case number in a line first. Then for each cow, you have to print Yes or No depending whether the cow is inside the land or not.
+
+Sample
+Input	Output
+1
+1 2 8 10
+7
+0 0
+5 6
+1 0
+7 9
+3 5
+10 10
+1 11
+
+Case 1:
+No
+Yes
+No
+Yes
+Yes
+No
+No
+*/
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+
+int main()
+{
+    int T; cin >> T;
+    cik(t, 1, T, 1){
+        int X_ini, X_fin, Y_ini, Y_fin;
+        cin >> X_ini >> Y_ini >> X_fin >> Y_fin;
+
+        int N, sol = 0; cin >> N;
+
+        cout << "Case " << t << ":\n";
+        cik(i, 1, N, 1){
+            int x, y; cin >> x >> y;
+            if(X_ini < x && x < X_fin && Y_ini < y && y < Y_fin){
+                cout << "Yes\n";
+            }
+            else{
+                cout << "No\n";
+            }
+        }
+    }
+    return 0;
+}
