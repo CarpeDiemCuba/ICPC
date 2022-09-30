@@ -1,0 +1,120 @@
+/*
+https://lightoj.com/problem/brush-5
+
+Tanvir returned home from the contest and got angry after seeing his room dusty. Who likes to see a dusty room after a mind boggling programming contest? After checking a bit he found that there is no brush in him room. So, he called Atiq to get a brush. But as usual Atiq refused to come. So, Tanvir decided to go to Atiq's house.
+
+The city they live in is divided by some junctions. The junctions are connected by two way roads. They live in different junctions. And they can go to one junction to using the given roads only.
+
+Now you are given the map of the city and the distances of the roads. You have to find the minimum distance Tanvir has to travel to reach Atiq's house.
+
+Input
+Input starts with an integer T (≤ 100), denoting the number of test cases.
+
+Each case starts with a blank line. The next line contains two integers N (2 ≤ N ≤ 100) and M (0 ≤ M ≤ 1000), means that there are N junctions and M two way roads. Each of the next M lines will contain three integers u v w (1 ≤ u, v ≤ N, w ≤ 1000), it means that there is a road between junction u and v and the distance is w.
+
+You can assume that Tanvir lives in the 1st junction and Atiq lives in the Nth junction. There can be multiple roads between same pair of junctions.
+
+Output
+For each case print the case number and the minimum distance Tanvir has to travel to reach Atiq's house. If it's impossible, then print Impossible.
+
+Sample
+Input	Output
+2
+
+3 2
+1 2 50
+2 3 10
+
+3 1
+1 2 40
+
+Case 1: 60
+Case 2: Impossible
+
+*/
+
+//By Forte11
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+#define bi pair<int, int>
+#define f first
+#define s second
+#define mkp make_pair
+
+const int maxn = 105;
+
+vector<bi > Adlist[maxn];
+int Cost[maxn];
+int N, M;
+
+void Dijkstra(){
+    priority_queue<bi, vector<bi >, greater<bi > > Q;
+    Q.push(mkp(0, 1));
+
+    while(!Q.empty()){
+        int nod = Q.top().s;
+        int c = Q.top().f;
+        Q.pop();
+
+        if(Cost[nod] != -1){
+            continue;
+        }
+
+        Cost[nod] = c;
+        if(nod == N){
+            return;
+        }
+
+        int lon = Adlist[nod].size() - 1;
+        cik(i, 0, lon, 1){
+            int nn = Adlist[nod][i].f;
+            int ncost = Adlist[nod][i].s + c;
+
+            if(Cost[nn] == -1){
+                Q.push(mkp(ncost, nn));
+            }
+        }
+    }
+    return;
+}
+
+void clean(){
+    cik(i, 1, maxn, 1){
+        Adlist[i].clear();
+        Cost[i] = -1;
+    }
+    return;
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+
+    int T; cin >> T;
+    cik(t, 1, T, 1){
+        clean();
+
+        cin >> N >> M;
+        cik(i, 1, M, 1){
+            int a, b, c;
+            cin >> a >> b >> c;
+            Adlist[a].push_back(mkp(b, c));
+            Adlist[b].push_back(mkp(a, c));
+        }
+
+        Dijkstra();
+        if(Cost[N] == -1){
+            cout << "Case " << t << ": Impossible\n";
+        }
+        else{
+            cout << "Case " << t << ": " << Cost[N] << "\n";
+        }
+    }
+    return 0;
+}
+
+
