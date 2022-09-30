@@ -1,0 +1,98 @@
+/*
+https://matcomgrader.com/problem/5721/subrect-i/
+
+Alan es un famoso constructor. El compro recientemente un pedazo de tierra y quiere construir una casa. La tierra tiene forma rectangular, N metros de ancho y M de largo. Puede ser dividida en N * M cuadrados. La casa de Alan debe tener forma rectangular, debe cumplir que tenga sus lados paralelos con los lados de la tierra y sus vértices deben coincidir con los vertices de los cuadrados. Toda la tierra cubierta por la casa de Alan debe tener la misma elevación para prevenir que se destruya. Calcule el numero de formas en que Alan puede construir su casa.
+Input
+La primera linea de entrada contiene dos enteros N y M .
+Cada una de las siguientes N lineas contiene M enteros aij(1 ≤ Aij ≤ 10^9), la elevación de cada cuadrado de tierra.
+• En el subproblema I se cumple (1 ≤ N ≤ 500);
+• En el subproblema II se cumple (1 ≤ N ≤ 1000);
+
+Output
+Debe imprimir exactamente el número deseado.
+Sample test(s)
+input
+5 3 
+2 2 2 
+2 2 1 
+1 1 1 
+2 1 2 
+1 2 1
+output
+27
+input
+4 3 
+1 1 1 
+1 1 1 
+2 2 2 
+2 2 2
+output
+36
+*/
+
+//Problema: Bob
+//Solucion usando idea de franja y two pointer sobre la franja.
+//Costo: O(N^2 * M), da en tiempo para el 60% de los casos
+
+#include <bits/stdc++.h> 
+
+using namespace std; 
+
+const int MAXN = 1001;
+
+int N, M;
+int A[MAXN][MAXN];
+bool H[MAXN];
+
+int main(){
+	ios_base::sync_with_stdio(0);
+	cin.tie(0);
+	
+	//freopen("bob.in", "r", stdin);
+	//freopen("bob.out", "w", stdout);
+
+	cin >> N >> M;
+
+	for (int i = 1 ; i <= N ; i++)
+		for (int j = 1 ; j <= M ; j++)
+			cin >> A[i][j];
+
+	long long sol = 0;
+
+	for (int f1 = 1 ; f1 <= N ; f1++){
+		int j = 1;
+		for (int i = 1 ; i <= M ; i++){
+			if (A[f1][i] == A[f1][j])
+				sol += i - j + 1;
+			else{
+				j = i;
+				sol++;
+			}
+			H[i] = true;
+		}
+
+		for (int f2 = f1 + 1 ; f2 <= N ; f2++){
+			for (int i = 1 ; i <= M ; i++)
+				if (A[f1][i] != A[f2][i])
+					H[i] = false;
+
+			int j = 1;
+			for (int i = 1 ; i <= M ; i++){
+				if (!H[i])
+					j = i + 1;
+				else{
+					if (A[f2][i] == A[f2][j])
+						sol += i - j + 1; 
+					else{
+						j = i;
+						sol++;
+					}
+				}
+			}
+		}//for (f2)
+	}//for (f1)
+
+	cout << sol;
+
+	return 0;
+}
