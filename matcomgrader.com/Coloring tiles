@@ -1,0 +1,72 @@
+/*
+https://matcomgrader.com/problem/9674/coloring-tiles/
+
+At Fito's garden, N tiles are arranged in a row. The initial color of each tile is represented by a string S of length N. The i-th tile from the left is painted black if the i-th character of S is 0 and painted white if that character is 1.
+
+Fito wants to repaint some of the tiles black or white so that any two adjacent tiles have different colors. What is the minimum amount of tiles that he need to repaint in order to satisfy this condition?
+Input
+The first line of input contains the string S (1≤|S|≤105). Each character of S is either 0 or 1.
+
+Output
+The minimum number of tiles that Fito needs to repaint in order to satisfy the condition.
+
+Sample test(s)
+input
+000
+output
+1
+input
+10010010
+output
+3
+input
+0
+output
+0
+Hints
+In the first example, Fito could repaint the second tile and the sequence would be 010 (any two adjacent tiles have different colors). Therefore the minimum amount of tiles to repaint is 1 since at least one has to be repainted because the original sequence does not satisfy the condition.
+
+*/
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+
+int main()
+{
+    ios_base::sync_with_stdio(0); cin.tie(0);
+
+//    freopen(".in", "r", stdin);
+
+    string A; cin >> A;
+
+    int len = A.size();
+
+    string B = "", C = "";
+
+    bool flag = false;
+    cik(i, 1, len, 1){
+        if(flag){
+            B += '1';
+            C += '0';
+        }
+        else{
+            B += '0';
+            C += '1';
+        }
+        flag = !flag;
+    }
+
+    int sola = 0, solb = 0;
+
+    cik(i, 0, len - 1, 1){
+        if(A[i] != B[i]) sola++;
+        if(A[i] != C[i]) solb++;
+    }
+
+    cout << min(sola, solb) << "\n";
+
+    return 0;
+}
