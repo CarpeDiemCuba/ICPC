@@ -1,0 +1,111 @@
+/*
+https://matcomgrader.com/problem/9268/black-and-white/
+
+The jury has a great artistic idea — to create a rectangular panel out of a huge pile of black and white squares of the same size.  The panel should have exactly b 4-connected areas made of black tiles, and w 4-connected areas made of white tiles. 
+
+Remember, a 4-connected area of some color is a maximal set of the panel tiles such that:
+- any two tiles of the area share the same color;
+- for any two tiles of the area there is a tile sequence connecting them, such that any two consecutive tiles of the sequence share a common side.
+
+In addition to the artistic idea, the jury has already developed a program that produces design of the panel. But since this problem is about art, any new solution is extremely important for the jury.
+Input
+The only line of the input file contains two integers b and w — number of black and white areas (1≤b,w≤1000). 
+Output
+The first line of the output file should contain the picture sizes r and c — the number of rows and columns (1≤r,c≤100000). This line should be followed by r lines of c symbols each. Each symbol should be either @ (for black tile) or . (for white one). There should be no more than 100000 tiles in the panel.
+Sample test(s)
+input
+2 3
+
+output
+6 7
+
+@@@@@@@
+
+@.@@@@@
+
+@@...@@
+
+@@@@@@@
+
+.......
+
+@@@@@@@
+*/
+
+#include <bits/stdc++.h>
+#define endl '\n'
+
+using namespace std;
+
+int n, m, k;
+char mat[100005][5];
+
+int main()
+{
+
+
+    cin.tie(0);
+    ios_base::sync_with_stdio(0);
+
+    cin >> n >> m;
+
+    assert( n >= 1 && m >= 1 );
+
+    if( n >= m ){
+        for( int i = 1; i <= 2*m; i += 2 ){
+            {
+                mat[i][0] = '@';
+                mat[i][1] = '@';
+                mat[i][2] = '@';
+                mat[i+1][0] = '.';
+                mat[i+1][1] = '.';
+                mat[i+1][2] = '.';
+            }
+        }
+
+        k = 2*m;
+
+        for( int i = 1; i <= 2*(n-m); i += 2 ){
+            mat[i+2*m][0] = '.';
+            mat[i+2*m][1] = '@';
+            mat[i+2*m][2] = '.';
+            mat[i+2*m+1][0] = '.';
+            mat[i+2*m+1][1] = '.';
+            mat[i+2*m+1][2] = '.';
+            k = i+2*m+1;
+        }
+    }else{
+
+        for( int i = 1; i <= 2*n; i += 2 ){
+            {
+                mat[i][0] = '.';
+                mat[i][1] = '.';
+                mat[i][2] = '.';
+                mat[i+1][0] = '@';
+                mat[i+1][1] = '@';
+                mat[i+1][2] = '@';
+            }
+        }
+
+        k = 2*n;
+
+        for( int i = 1; i <= 2*(m-n); i += 2 ){
+            mat[i+2*n][0] = '@';
+            mat[i+2*n][1] = '.';
+            mat[i+2*n][2] = '@';
+            mat[i+2*n+1][0] = '@';
+            mat[i+2*n+1][1] = '@';
+            mat[i+2*n+1][2] = '@';
+            k = i+2*n+1;
+        }
+
+    }
+
+
+    cout << k << ' ' << 3 << '\n';
+    for( int i = 1; i <= k; i ++ )
+        cout << mat[i] << endl;
+
+
+    return 0;
+}
