@@ -1,0 +1,60 @@
+/*
+https://matcomgrader.com/problem/9661/arithmetic-mean/
+
+Given four integer values, determine if one of them is equal to the mean of other two values.
+
+Remember that the mean of two values a and b is a+b2.
+Input
+The first line of the input contains the four integers a, b, c and d (1≤a,b,c,d≤100).
+Output
+If there exists one value that is equal to the mean of the other two values, then print "Yes" without quotes, otherwise print "No" without quotes.
+
+Sample test(s)
+input
+3 10 1 2
+output
+YES
+input
+100 100 100 100
+output
+YES
+input
+10 21 21 15
+output
+NO
+*/
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+
+int main()
+{
+    ios_base::sync_with_stdio(0); cin.tie(0);
+
+//    freopen(".in", "r", stdin);
+
+    vector<int> V;
+    cik(i, 1, 4, 1){
+        int a; cin >> a;
+        V.push_back(a);
+    }
+
+    sort(V.begin(), V.end());
+
+    bool flag = false;
+    do{
+        if(V[0] == (V[1] + V[2]) / 2 && (V[1] + V[2]) % 2 == 0){
+            flag = true;
+            break;
+        }
+
+    }while(next_permutation(V.begin(), V.end()));
+
+    if(flag) cout << "YES\n";
+    else cout << "NO\n";
+
+    return 0;
+}
