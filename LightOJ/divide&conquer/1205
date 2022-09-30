@@ -1,0 +1,141 @@
+/*
+https://lightoj.com/problem/palindromic-numbers
+
+A palindromic number or numeral palindrome is a 'symmetrical' number like 16461 that remains the same when its digits are reversed. In this problem you will be given two integers i j, you have to find the number of palindromic numbers between i and j (inclusive).
+
+Input
+Input starts with an integer T (≤ 200), denoting the number of test cases.
+
+Each case starts with a line containing two integers i j (0 ≤ i, j ≤ 1017).
+
+Output
+For each case, print the case number and the total number of palindromic numbers between i and j (inclusive).
+
+Sample
+Input	Output
+4
+1 10
+100 1
+1 1000
+1 10000
+
+Case 1: 9
+Case 2: 18
+Case 3: 108
+Case 4: 198
+*/
+
+#include<bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+#define ll long long
+
+const int maxn = 20;
+
+ll P9[maxn], P10[maxn];
+
+void calc_pot(){
+    P9[0] = P10[0] = 1;
+    P9[1] = P9[2] = 9;
+    P10[1] = P10[2] = 10;
+    for(int i = 3; i < maxn; i += 2){
+        P9[i] = P9[i + 1] = P9[i - 1] * 10;
+        P10[i] = P10[i + 1] = P10[i - 1] * 10;
+    }
+    return;
+}
+
+string a_string (ll a){
+    string Sol = "";
+
+    while(a){
+        Sol += a % 10;
+        a /= 10;
+    }
+    reverse(Sol.begin(), Sol.end());
+    return Sol;
+}
+
+ll solve(string a){
+    if((int)(a[0]) == 0)
+        return 0ll;
+
+    ll Sol = 0;
+
+    int len = a.size();
+
+    for(int i = 1; i < len ; i++){
+        Sol += P9[i];
+    }
+
+    int mit = len / 2;
+    for(int i = 0; i < mit; i++){
+        int var = a[i] ;
+
+        if(!i){
+            Sol += (var - 1) * P10[len - (i + 1) * 2];
+        }else Sol += (var) * P10[len - (i + 1) * 2];
+    }
+
+    if(len % 2){
+        if(len == 1)
+        Sol += a[mit] - 1;
+        else Sol += a[mit];
+    }
+
+
+    int cont = 1;
+    int i, j; i = j = mit;
+
+    if(len%2==0) i--;
+
+    while(i >= 0){
+        if(a[i] > a[j]){
+            cont = 0; break;
+        }
+        else if(a[i] < a[j]){
+            break;
+        }
+        i--; j++;
+    }
+
+    Sol += cont;
+
+    return Sol;
+}
+
+int main(){
+    //ios_base::sync_with_stdio(0); cin.tie(0);
+
+    //freopen(".in", "r", stdin);
+
+    calc_pot();
+
+    int T; scanf("%d", &T);
+
+    cik(t, 1, T, 1){
+        ll a, b;
+        scanf("%lld%lld", &a, &b);
+        string mini, maxi;
+
+        if(a < b){
+            mini = a_string (--a);
+            maxi = a_string (b);
+        }else {
+            mini = a_string (--b);
+            maxi = a_string (a);
+        }
+
+        ll Sol;
+
+        Sol = solve(maxi);
+        Sol -= solve(mini);
+
+//        cout << "Case " << t << ": " << Sol << "\n";
+        printf("Case %d: %lld\n", t, Sol);
+    }
+
+    return 0;
+}
