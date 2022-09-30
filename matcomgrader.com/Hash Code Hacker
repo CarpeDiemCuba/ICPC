@@ -1,0 +1,81 @@
+/*
+https://matcomgrader.com/problem/9274/hash-code-hacker/
+
+According to Java standard library documentation, the hash code of  String is computed as 
+
+    s[0]*31^(n-1) + s[1]*31^(n-2) + ... + s[n-1]
+
+Here s[i] is the i-th character of the string, n is the length of the string, and ^ indicates exponentiation. Computation uses signed 32-bit integers in two's complement form.
+
+Heather is going to hack the servers of Not Entirely Evil Recording Company (NEERC). To perform an attack she needs k distinct query strings that have equal hash codes. Unfortunately, NEERC servers accept query string containing lower- and uppercase English letters only.
+
+Heather hired you to write a program that generates such query strings for her.
+Input
+The single line of the input file contains integer k — the number of required query strings to generate (2≤k≤1000).
+Output
+Output k lines. Each line should contain a single query string. Each query string should be non-empty and its length should not exceed 1000 characters. Query string should contain only lower- and uppercase English letters. All query strings should be distinct and should have equal hash codes.
+Sample test(s)
+input
+4
+
+output
+edHs
+
+mENAGeS
+
+fEHs
+
+edIT
+
+*/
+
+//By Forte11
+#include <bits/stdc++.h>
+using namespace std;
+
+const int MAX = 1e6 + 5;
+
+int n, k;
+
+string s2 = "edHs", s1 = "fEHs";
+
+int main(){
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+
+    cin >> n;
+    k = (int)log2(n - 1) + 1;
+    for(int i = 0; i < n; i++) {
+        for(int j = 0; j < k; j++) {
+            if(i & (1 << j))
+                cout << s1;
+            else
+                cout << s2;
+        }
+        cout << "\n";
+    }
+
+    return  0;
+}
+/*
+10+20-30000
+10+20-3+0+0+0+0
+*/
+/*
+0       1
+edHs feHs
+
+1000
+
+00
+01
+10
+11
+
+1 2 3 4 5 6 7 8 9
+1 1 2 2 3 3 3 3 4
+
+
+
+
+*/
