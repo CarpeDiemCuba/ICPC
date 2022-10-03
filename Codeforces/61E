@@ -1,0 +1,130 @@
+  /*
+  https://codeforces.com/problemset/problem/61/E
+  
+  E. Enemy is weak
+time limit per test5 seconds
+memory limit per test256 megabytes
+inputstandard input
+outputstandard output
+The Romans have attacked again. This time they are much more than the Persians but Shapur is ready to defeat them. He says: "A lion is never afraid of a hundred sheep".
+
+Nevertheless Shapur has to find weaknesses in the Roman army to defeat them. So he gives the army a weakness number.
+
+In Shapur's opinion the weakness of an army is equal to the number of triplets i, j, k such that i < j < k and ai > aj > ak where ax is the power of man standing at position x. The Roman army has one special trait — powers of all the people in it are distinct.
+
+Help Shapur find out how weak the Romans are.
+
+Input
+The first line of input contains a single number n (3 ≤ n ≤ 106) — the number of men in Roman army. Next line contains n different positive integers ai (1 ≤ i ≤ n, 1 ≤ ai ≤ 109) — powers of men in the Roman army.
+
+Output
+A single integer number, the weakness of the Roman army.
+
+Please, do not use %lld specificator to read or write 64-bit integers in C++. It is preffered to use cout (also you may use %I64d).
+
+Examples
+inputCopy
+3
+3 2 1
+outputCopy
+1
+inputCopy
+3
+2 3 1
+outputCopy
+0
+inputCopy
+4
+10 8 3 1
+outputCopy
+4
+inputCopy
+4
+1 5 4 3
+outputCopy
+1
+
+  */
+  
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define int long long
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+
+const int maxn = 1e6 + 5;
+
+map<int, int> M;
+int ST[maxn * 4][2];
+int A[maxn];
+int B[maxn];
+
+int query(int nod, int ini, int fin, int pos, int b){
+    if(fin < pos){
+        return 0;
+    }
+    if(pos <= ini){
+        return ST[nod][b];
+    }
+
+    int mit = (ini + fin) >> 1;
+
+    int q1 = query(nod << 1, ini, mit, pos, b);
+    int q2 = query((nod << 1) + 1, mit + 1, fin, pos, b);
+
+    return q1 + q2;
+}
+
+void update(int nod, int ini, int fin, int pos, int val, int b){
+    if(pos < ini || fin < pos ){
+        return;
+    }
+    if(ini == fin && ini == pos){
+        ST[nod][b] = val;
+        return;
+    }
+
+    int mit = (ini + fin) >> 1;
+    update(nod << 1, ini, mit, pos, val, b);
+    update((nod << 1) + 1, mit + 1, fin, pos, val, b);
+
+    ST[nod][b] = ST[nod << 1][b] + ST[(nod << 1) + 1][b];
+    return;
+}
+
+ main(){
+    ios_base::sync_with_stdio(0); cin.tie(0);
+
+
+    int N; cin >> N;
+
+    cik(i, 1, N, 1){
+        cin >> A[i];
+        B[i] = A[i];
+    }
+
+    sort(B + 1, B + N + 1);
+
+    cik(i, 1, N, 1){
+        M[B[i]] = i;
+    }
+
+    int Sol = 0;
+    cik(i, 1, N, 1){
+        int pos = M[A[i]];
+
+        Sol += query(1, 1, N, pos + 1, 1);
+
+        update(1, 1, N, pos, 1, 0);
+
+        int q = query(1, 1, N, pos + 1, 0);
+
+        update(1, 1, N, pos, q, 1);
+    }
+
+    cout << Sol << "\n";
+
+
+
+}
