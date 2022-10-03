@@ -1,0 +1,123 @@
+/*
+https://www.spoj.com/problems/CPCRC1C/en/
+
+
+CPCRC1C - Sum of Digits
+#dynamic-programming
+
+Majid is a 3rd-grade elementary student and quite well in mathematics. Once, Majid's teacher asked him to calculate the sum of numbers 1 through n.
+
+Majid quickly answered, and his teacher made him another challenge. He asked Majid to calculate the sum of the digits of numbers 1 through n.
+
+Majid did finally find the solution. Now it is your turn, can you find a solution?
+
+Input
+Two space-separated integers 0 <= a <= b <= 109.
+
+Program terminates if a and b are -1.
+
+Output
+The sum of the digits of numbers a through b.
+
+Example
+Input:
+1 10
+100 777
+-1 -1
+
+Output:
+46
+8655
+
+*/
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+#define int long long
+
+const int maxn = 15;
+
+int dp[maxn];
+int cant[maxn];
+
+string tostring(int a){
+    string Sol= "";
+
+    if(a == 0) return "0";
+
+    char c;
+    while(a){
+        c = a%10+'0';
+        Sol += c;
+        a/=10;
+    }return Sol;
+}
+
+void calc_dp(){
+    int mult = 20, inc  = 10;
+    dp[1] = 45;
+    cant[0] = 1;
+    cant[1] = 10;
+    for(int i = 2; i <= 9; i++){
+        dp[i] = dp[1]*mult;
+        mult+=inc;mult*=10;inc*=10;
+
+        cant[i]=cant[i-1]*10;
+    }
+
+
+    return;
+}
+
+int solve(string a){
+    int len = a.size();
+
+    int Sol = 0, res = 0;
+    for(int i = 0; i < len; i++){
+        int j = 0;
+        int val = a[i] - '0';
+        for(; j < val; j++){
+            Sol += (res+j)*cant[len-i-1]+dp[len-i-1];
+        }
+        res += val;
+    }return Sol;
+}
+
+main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+
+//    freopen(".in", "r", stdin);
+
+    calc_dp();
+
+    int a, b; while(cin >> a >> b){
+        if(a == -1 && b == -1) break;
+
+        string aa, bb;
+        aa = tostring(a);
+        bb = tostring(++b);
+
+        reverse(aa.begin(), aa.end());
+        reverse(bb.begin(), bb.end());
+
+        int Sola = 0, Solb = 0;
+
+//        cout << aa << "\n";
+//        cout << bb << "\n";
+
+        Sola = solve(aa);
+        Solb = solve(bb);
+
+        cout << Solb-Sola<< "\n";
+
+    }
+
+    int i = 1; int sum = 0;
+
+    return 0;
+}
