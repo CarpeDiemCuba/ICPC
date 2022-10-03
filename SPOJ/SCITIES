@@ -1,0 +1,183 @@
+/*
+https://www.spoj.com/problems/SCITIES/en/
+
+SCITIES - Selfish Cities
+#combinatorics #weighted-matching
+
+Far, far away there is a world known as Selfishland because of the nature of its inhabitants. Hard times have forced the cities of Selfishland to exchange goods among each other. C1 cities are willing to sell some goods and the other C2 cities are willing to buy some goods (each city can either sell or buy goods, but not both). There would be no problem if not for the selfishness of the cities. Each selling city will sell its goods to one city only, and each buying city will buy goods from one city only.
+
+Your goal is to connect the selfish cities in such a way that the amount of exchanged goods is maximalized.
+
+Input
+The first line contains a positive integer t<=1000 indicating the number of test cases. Each test case is an instance of the problem defined above. The first line of each test case is a pair of positive integers C1 and C2 (the number of cities wanting to sell their goods C1<=100 and the number of cities wanting to buy goods C2<=100). The lines that follow contain a sequence of (c1,c2,g) trios ending with three zeros. (c1,c2,g) means that the city c1 can offer the city c2 the amount of g<=100 goods.
+
+Output
+For each test case print the maximal amount of goods exchanged.
+
+Example
+Input:
+3
+3 2
+1 1 10
+2 1 19
+2 2 11
+3 2 1
+0 0 0
+4 4
+1 1 6
+1 2 6
+2 1 8
+2 3 9
+2 4 8
+3 2 8
+4 3 7
+0 0 0
+3 2
+1 1 10
+2 1 21
+2 2 11
+3 2 1
+0 0 0
+
+Output:
+21
+29
+22
+
+
+*/
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+#define pii pair<int, int>
+#define mp make_pair
+
+const int MAXA = 5000;
+const int MAXV = 100000;
+const int INF = 1e9 + 7;
+
+int e , u[MAXA], v[MAXA], w[MAXA], cap[MAXA], last[MAXV], next1[MAXA];
+int pre[MAXV], d[MAXV];
+bool inq[MAXV];
+queue<int> q;
+void addEdge(int a, int b, int co, int ca)
+{
+    u[e] = a;
+    v[e] = b;
+    w[e] = co;
+    cap[e] = ca;
+    next1[e] = last[a];
+    last[a] = e++;
+    u[e] = b;
+    v[e] = a;
+    w[e] = -co;
+    cap[e] = 0;
+    next1[e] = last[b];
+    last[b] = e++;
+}
+void init()
+{
+    e = 0;
+    memset(last, -1, sizeof(last));
+}
+
+bool spac(int s, int t, int cnt)
+{
+    int x,y, i;
+    memset(pre, -1, sizeof(pre));
+    memset(inq, 0, sizeof(inq));
+    for(i = 0; i <= cnt; ++i) d[i] = INF;
+
+    d[s] = 0;
+    inq[s] = true;
+    q.push(s);
+
+    while(!q.empty())
+    {
+        x = q.front();
+        q.pop();
+
+        inq[x] = false;
+        for(i = last[x]; i != -1; i = next1[i])
+        {
+            y = v[i];
+            if(cap[i] != 0 && d[y] > d[x] + w[i])
+            {
+                d[y] = d[x] + w[i];
+                pre[y] = i;
+                if(!inq[y])
+                {
+                    inq[y] = true;
+                    q.push(y);
+                }
+            }
+        }
+    }
+
+    return d[t] != INF;
+}
+int cost, flow;
+
+pii mfmc(int s, int t, int cnt)
+{
+    cost = flow = -1;
+    int i, tmp;
+    while(spac(s, t, cnt))
+    {
+        tmp = INF;
+        for(i = pre[t]; i != -1; i = pre[u[i]])
+            tmp = min(tmp, cap[i]);
+
+        for(i = pre[t]; i != -1; i = pre[u[i]])
+        {
+            cap[i] -= tmp;
+            cap[i^1] += tmp;
+
+            cost += w[i];
+        }
+        flow += tmp;
+    }
+    return mp(flow,cost);
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(0); cin.tie(0);
+
+//    freopen(".in", "r", stdin);
+
+    int T; cin >> T; cik(t, 1, T, 1){
+        init();
+
+
+        int N, M; cin >> N >> M;
+
+        int fuente = 0, sumidero = N + M + 1;
+
+        int a, b, c; while(cin >> a >> b >> c){
+            if(!a && !b && !c) break;
+
+            addEdge(a, b + N, -c, 1);
+//            addEdge(b + N, a, 0, 1);
+        }
+
+        cik(i, 1, N, 1) {
+            addEdge(0, i, 0, 1);
+//            addEdge(i, 0, 0, 1);
+        }
+        cik(i, 1, M, 1) {
+            addEdge(i + N, sumidero, 0, 1 );
+//            addEdge(sumidero, i + N, 0, 1);
+        }
+
+        pii flujo = mfmc(fuente, sumidero, sumidero + 1);
+
+        cout << -flujo.second - 1 << "\n";
+
+    }
+
+    return 0;
+}
