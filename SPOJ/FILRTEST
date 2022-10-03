@@ -1,0 +1,95 @@
+/*
+https://www.spoj.com/problems/FILRTEST/en/
+
+FILRTEST - File Recover Testing
+no tags 
+
+In a recent programming contest appeared a problem named “File Recover”. In that problem, repeated strings of a given text were to be counted. You are preparing test cases for that problem, and in order to test for border cases you want to generate a text with many repetitions of a particular string. Of course, test cases cannot be arbitrarily long, so you decided to choose a length and a string, and then fit in a text of that length as many repetitions as possible of the string.
+
+For instance, if the length is 14 and the string is “abcab”, you may generate the text “abcabcabcabcab” whose length is 14 and where the string “abcab” appears 4 times (starting at positions 1, 4, 7 and 10).
+
+You would like to know how good your idea is before implementing. Given a length and a string, you must determine the maximum number of times the characters of the string can appear consecutively in a text of that length.
+
+Input
+Each test case is described using a single line. The line contains an integer K (1 ≤ K ≤ 109 ) and a non-empty string S of at most 106 lowercase letters. The end of input is indicated with a line containing the number −1 and an asterisk (“*”).
+
+Output
+For each test case, output a single line with a single integer representing the maximum number of times the characters of S can appear consecutively in a text of length K.
+
+Example
+Input:
+14 abcab
+1000 abcde
+1000000000 z
+1 zzzzz
+-1 *
+
+Output:
+4
+200
+1000000000
+0
+
+*/
+
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+
+const int maxn = 1e6 + 5;
+
+int pi[maxn];
+string pat;
+int len;
+
+void prekmp(){
+    len = pat.length();
+    pi[0] = 0;
+    for(int j=0, i=1;i<len;i++){
+        if(pat[i] == pat[j]){
+            pi[i] = j + 1;
+            j++;
+        }
+        else{
+            while(true){
+                if(j == 0 || pat[j] == pat[i])
+                    break;
+                j = pi[j-1];
+            }
+            if(pat[j] == pat[i]){
+                pi[i] = j + 1;
+                j++;
+            }
+            else
+                pi[i] = 0;
+        }
+    }
+    return;
+}
+int main()
+{
+    ios_base::sync_with_stdio(0); cin.tie(0); cout.tie(0);
+
+//    freopen(".in", "r", stdin);
+
+    int K;
+    while(cin >> K >> pat){
+        if(K == -1) break;
+
+        prekmp();
+        K -= pi[len-1];
+
+        if(K <= 0) cout << "0\n";
+        else{
+            len -= pi[len - 1];
+            K /= len;
+            cout << K << "\n";
+        }
+
+    }
+
+    return 0;
+}
