@@ -1,0 +1,235 @@
+/*
+https://codeforces.com/problemset/problem/727/D
+
+D. T-shirts Distribution
+time limit per test1 second
+memory limit per test256 megabytes
+inputstandard input
+outputstandard output
+The organizers of a programming contest have decided to present t-shirts to participants. There are six different t-shirts sizes in this problem: S, M, L, XL, XXL, XXXL (sizes are listed in increasing order). The t-shirts are already prepared. For each size from S to XXXL you are given the number of t-shirts of this size.
+
+During the registration, the organizers asked each of the n participants about the t-shirt size he wants. If a participant hesitated between two sizes, he could specify two neighboring sizes — this means that any of these two sizes suits him.
+
+Write a program that will determine whether it is possible to present a t-shirt to each participant of the competition, or not. Of course, each participant should get a t-shirt of proper size:
+
+the size he wanted, if he specified one size;
+any of the two neibouring sizes, if he specified two sizes.
+If it is possible, the program should find any valid distribution of the t-shirts.
+
+Input
+The first line of the input contains six non-negative integers — the number of t-shirts of each size. The numbers are given for the sizes S, M, L, XL, XXL, XXXL, respectively. The total number of t-shirts doesn't exceed 100 000.
+
+The second line contains positive integer n (1 ≤ n ≤ 100 000) — the number of participants.
+
+The following n lines contain the sizes specified by the participants, one line per participant. The i-th line contains information provided by the i-th participant: single size or two sizes separated by comma (without any spaces). If there are two sizes, the sizes are written in increasing order. It is guaranteed that two sizes separated by comma are neighboring.
+
+Output
+If it is not possible to present a t-shirt to each participant, print «NO» (without quotes).
+
+Otherwise, print n + 1 lines. In the first line print «YES» (without quotes). In the following n lines print the t-shirt sizes the orginizers should give to participants, one per line. The order of the participants should be the same as in the input.
+
+If there are multiple solutions, print any of them.
+
+Examples
+inputCopy
+0 1 0 1 1 0
+3
+XL
+S,M
+XL,XXL
+outputCopy
+YES
+XL
+M
+XXL
+inputCopy
+1 1 2 0 1 1
+5
+S
+M
+S,M
+XXL,XXXL
+XL,XXL
+outputCopy
+NO
+*/
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+
+struct FlowEdge {
+    int v, u;
+    long long cap, flow = 0;
+    FlowEdge(int v, int u, long long cap) : v(v), u(u), cap(cap) {}
+};
+
+struct Dinic {
+    const long long flow_inf = 1e18;
+    vector<FlowEdge> edges;
+    vector<vector<int>> adj;
+    int n, m = 0;
+    int s, t;
+    vector<int> level, ptr;
+    queue<int> q;
+
+    Dinic(int n, int s, int t) : n(n), s(s), t(t) {
+        adj.resize(n);
+        level.resize(n);
+        ptr.resize(n);
+    }
+
+    void add_edge(int v, int u, long long cap) {
+        edges.emplace_back(v, u, cap);
+        edges.emplace_back(u, v, 0);
+        adj[v].push_back(m);
+        adj[u].push_back(m + 1);
+        m += 2;
+    }
+
+    bool bfs() {
+        while (!q.empty()) {
+            int v = q.front();
+            q.pop();
+            for (int id : adj[v]) {
+                if (edges[id].cap - edges[id].flow < 1)
+                    continue;
+                if (level[edges[id].u] != -1)
+                    continue;
+                level[edges[id].u] = level[v] + 1;
+                q.push(edges[id].u);
+            }
+        }
+        return level[t] != -1;
+    }
+
+    long long dfs(int v, long long pushed) {
+        if (pushed == 0)
+            return 0;
+        if (v == t)
+            return pushed;
+        for (int& cid = ptr[v]; cid < (int)adj[v].size(); cid++) {
+            int id = adj[v][cid];
+            int u = edges[id].u;
+            if (level[v] + 1 != level[u] || edges[id].cap - edges[id].flow < 1)
+                continue;
+            long long tr = dfs(u, min(pushed, edges[id].cap - edges[id].flow));
+            if (tr == 0)
+                continue;
+            edges[id].flow += tr;
+            edges[id ^ 1].flow -= tr;
+            return tr;
+        }
+        return 0;
+    }
+
+    long long flow() {
+        long long f = 0;
+        while (true) {
+            fill(level.begin(), level.end(), -1);
+            level[s] = 0;
+            q.push(s);
+            if (!bfs())
+                break;
+            fill(ptr.begin(), ptr.end(), 0);
+            while (long long pushed = dfs(s, flow_inf)) {
+                f += pushed;
+            }
+        }
+        return f;
+    }
+};
+
+map<string, int > Mp;
+map<int, string > Map;
+
+int f(string a, int b){
+    string sol = "";
+
+    int c = 1;
+    int len = a.size();
+    cik(i, 0, len - 1, 1){
+        if(a[i] == ',') {c++;continue;}
+
+        if(c == b){
+            sol += a[i];
+        }
+    }
+    return Mp[sol];
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(0); cin.tie(0);
+
+    vector<int> V;
+    cik(i, 1, 6, 1){
+        int a; cin >> a;
+        V.push_back(a);
+    }
+
+    int N; cin >> N;
+
+    Mp["S"] = N + 1;
+    Mp["M"] = N + 2;
+    Mp["L"] = N + 3;
+    Mp["XL"] = N + 4;
+    Mp["XXL"] = N + 5;
+    Mp["XXXL"] = N + 6;
+
+    Map[N + 1] = "S";
+    Map[N + 2] = "M";
+    Map[N + 3] = "L";
+    Map[N + 4] = "XL";
+    Map[N + 5] = "XXL";
+    Map[N + 6] = "XXXL";
+
+    int fuente = N + 7, sumidero = N + 8;
+
+    Dinic D = Dinic(N + 9, fuente, sumidero);
+
+    cik(i, 1, N, 1){
+        string a; cin >> a;
+
+        int n1 = f(a, 1);
+        int n2 = f(a, 2);
+
+        D.add_edge(fuente, i, 1);
+        D.add_edge(i, n1, 1);
+        if(n2) D.add_edge(i, n2, 1);
+    }
+
+    cik(i, 1, 6, 1){
+        D.add_edge(N + i, sumidero, V[i - 1]);
+    }
+
+    int flow = D.flow();
+
+    if(flow == N){
+        cout << "YES\n";
+
+        int len = D.edges.size();
+        vector<int> Sol (N + 1);
+        for(int i = 0; i < len; i++){
+            int u = D.edges[i].u ;
+            int v = D.edges[i].v ;
+            if(1 <= u && u <= N && N + 1 <= v && v < fuente){
+                if(D.edges[i].flow == -1){
+                    Sol[u] = v;
+                }
+            }
+        }
+        for(int i = 1; i < Sol.size(); i++){
+            cout << Map[Sol[i]] << "\n";
+        }
+    }
+    else{
+        cout << "NO\n";
+    }
+
+
+
+    return 0;
+}
