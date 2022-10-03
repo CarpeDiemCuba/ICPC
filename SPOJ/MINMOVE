@@ -1,0 +1,112 @@
+/*
+https://www.spoj.com/problems/MINMOVE/en/
+
+MINMOVE - Minimum Rotations
+no tags 
+
+English	Vietnamese
+Given a string S[1..n] . A rotation on S is that we move the first character to the right-most of the string. More specific, after a rotation, S becomes T = S[2..n] + S[1].
+
+For example: S = abcaa, then after a rotation we have S = bcaaa.
+
+Find the minimum number of rotations to make S become the smallest lexicographical order string.
+
+Input
+A single line contains a string S. S contains only small letters of English alphabet (‘a’ .. ‘z’), and the length of S is not more than 100000.
+
+Output
+A single line contains an integer which represents the minimum number of rotations.
+
+Example
+Input:
+mississippi
+
+Output:
+10
+
+
+
+*/
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+
+const int MAXN = 1e6 + 5;
+
+string S;
+
+namespace SA
+{
+#define XX w[ok]
+#define YY w[!ok]
+#define FOR(i,n) for(int i = 0; i<n;i++)
+#define FAB(i,a,b) for(int i = a; i<b;i++)
+#define FORR(i, n) for(int i = n; i >= 0; i--)
+int SA[MAXN],cnt[MAXN+1], w[3][MAXN];
+int N,i,pot,p,k,ok, range;
+
+void radix_pass(int *a,bool s)
+{
+    memset(cnt,0, range * 4);
+    FOR(i,N) cnt[ a[i] ]++;
+    FAB(i,1,range) cnt[i] += cnt[ i-1 ];
+    FORR(i,N-1) SA[ --cnt[a[i]]]= s? YY[i]:i;
+}
+void Sufix_Array(string cad)
+{
+    N = cad.size() + 1, ok=0, range = 256;
+    for(i=0; i<N; i++) XX[i] = cad[i];
+    radix_pass(XX,0);
+    for(int pot=p=1; p<N; pot *=2, range=p)
+    {
+        for(p=0,i=N-pot; i<N; YY[p++]= i++) ;
+        for(i=0; i<N; i++) if (SA[i] >= pot)
+                YY[p++]= SA[i]-pot;
+        for(i=0; i<N; i++) w[2][i]= XX[YY[i]];
+        radix_pass(w[2],1);
+        ok ^= p=1, XX[SA[0]] = 0;
+        for(i=1; i<N; XX[SA[i++]]=k? p-1: p++)
+            if(k=0, YY[SA[i]] == YY[SA[i-1]])
+                if(YY[SA[i]+pot] == YY[SA[i-1]+pot])
+                    k = 1;
+    }
+
+    return;
+}
+
+int rank[MAXN], LCP[MAXN];
+void findLCP(string cad,int N)
+{
+    int i, j, k;
+    for(i=1; i <= N; i++) rank[ SA[i] ] = i;
+    for(k=i=0; i< N; LCP[rank[i++]]=k ,k-=k>0)
+        for(j=SA[rank[i]-1]; cad[i+k]==cad[j+k]; k++);
+}
+};
+
+int main()
+{
+    ios_base::sync_with_stdio(0); cin.tie(0);
+
+//    freopen(".in","r", stdin);
+
+
+    cin >> S;
+    S += S;
+    S += char('z' + 1);
+
+    SA::Sufix_Array(S);
+
+    int len = S.size();
+    cik(i, 0, len, 1){
+        if(SA::SA[i] < len / 2){
+            cout << SA::SA[i] << "\n";
+            break;
+        }
+    }
+
+    return 0;
+}
