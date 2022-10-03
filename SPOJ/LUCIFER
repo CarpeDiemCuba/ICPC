@@ -1,0 +1,150 @@
+/*
+https://www.spoj.com/problems/LUCIFER/en/
+
+LUCIFER - LUCIFER Number
+#dynamic-programming
+
+Lucifer is the only human who has defeated RA-ONE in a computer game ...
+
+RA-One is after lucifer for revenge and G-One is there to protect him ...
+
+All thi G-One and Ra-one Nonsense has disturbed Lucifer's life ...
+
+He wants to get Rid of Ra-One and kill him . He found that Ra-One can be killed only by throwing Lucifer number of weapons at him.
+
+Lucifer number shares the some properties of Ra-One Numbers numbers and G-One Numbers
+
+Any number is LUCIFER NUMBER if the difference between sum of digits at even location and sum of digits at odd location is prime number. For example, 20314210 is a Lucifer number:
+
+digits at odd location 0, 2, 1, 0.
+
+digits at even location 1, 4, 3, 2.
+
+difference = (1+4+3+2)-(0+2+1+0) = 10-3 = 7 ... a prime number.
+
+Lucifer has access to a Warehouse which has lots of weapons. He wants to know in how many ways can he kill him.
+
+Can you help him?
+
+Input
+First line will have a number 't' denoting the number of test cases.
+
+each of the following t lines will have 2 numbers 'a', 'b'
+
+Output
+Print single number per test case, depicting the count of Lucifer numbers in the range a, b inclusive.
+
+Example
+Input:
+5
+200 250
+150 200
+100 150
+50 100
+0 50
+
+Output:
+2
+16
+3
+18
+6
+NOTE: t will be less than 100. 'a' and 'b' will be between 0 and 10^9 inclusive.
+*/
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+
+const int maxn = 100;
+
+bool B[maxn][maxn][maxn];
+int dp[maxn][maxn][maxn];
+
+bool is_prime(int a){
+    if(a <= 1) return false;
+
+    if(a == 2) return true;
+    if(a % 2 == 0) return false;
+    for(int i = 3; i * i <= a; i+= 2){
+        if(a % i == 0) return false;
+    }return true;
+}
+
+int solve_dp(int len, int sump, int sumi, int par){
+    if(len == 0){
+        return is_prime(sump-sumi);
+    }
+
+    if(B[len][sump][sumi]){
+       return dp[len][sump][sumi];
+    }
+
+    B[len][sump][sumi] = true;
+
+    for(int i = 0; i <= 9; i++){
+        int sump_temp = sump, sumi_temp = sumi;
+
+        if(par%2)sumi_temp+=i;
+        else     sump_temp+=i;
+
+        dp[len][sump][sumi] += solve_dp(len - 1, sump_temp, sumi_temp, par - 1);
+    }return dp[len][sump][sumi];
+}
+
+int solve(string a){
+    int Sol = 0;
+    int len = a.size();
+    int par = len;
+    int sump, sumi; sump = sumi = 0;
+
+    for(int i = 0; i < len; i++){
+        int var = a[i] - '0';
+        for(int j = 0; j < var; j++){
+            int sump_temp = sump, sumi_temp = sumi;
+
+            if(par%2)sumi_temp+=j;
+            else     sump_temp+=j;
+
+
+            Sol += solve_dp(len - (i + 1), sump_temp, sumi_temp, par-1);
+        }
+        if(par%2)sumi += var;
+        else     sump += var;
+        par--;
+    }
+    return Sol;
+}
+
+bool ok(string a){
+    int sump = 0, sumi = 0;
+
+    int len = a.size();
+    int par = len;
+
+    for(int i = 0; i < len; i++){
+        if(par%2) sumi += a[i] - '0';
+        else sump += a[i] - '0';
+        par--;
+    }
+    return is_prime(sump - sumi);
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(0); cin.tie(0);
+
+  //  freopen(".in", "r", stdin);
+
+    int T; cin >> T;
+    cik(t, 1, T, 1){
+        string a, b; cin >> a >> b;
+
+        cout << solve(b)  - solve(a) + ok(b) << "\n";
+    }
+
+
+    return 0;
+}
