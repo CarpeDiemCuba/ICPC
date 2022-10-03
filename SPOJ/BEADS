@@ -1,0 +1,118 @@
+/*
+https://www.spoj.com/problems/BEADS/en/
+
+BEADS - Glass Beads
+no tags 
+
+Once upon a time there was a famous actress. As you may expect, she played mostly Antique Comedies most of all. All the people loved her. But she was not interested in the crowds. Her big hobby were beads of any kind. Many bead makers were working for her and they manufactured new necklaces and bracelets every day. One day she called her main Inspector of Bead Makers (IBM) and told him she wanted a very long and special necklace.
+
+The necklace should be made of glass beads of different sizes connected to each other but without any thread running through the beads, so that means the beads can be disconnected at any point. The actress chose the succession of beads she wants to have and the IBM promised to make the necklace. But then he realized a problem. The joint between two neighbouring beads is not very robust so it is possible that the necklace will get torn by its own weight. The situation becomes even worse when the necklace is disjoined. Moreover, the point of disconnection is very important. If there are small beads at the beginning, the possibility of tearing is much higher than if there were large beads. IBM wants to test the robustness of a necklace so he needs a program that will be able to determine the worst possible point of disjoining the beads.
+
+The description of the necklace is a string A = a1a2 ... am specifying sizes of the particular beads, where the last character am is considered to precede character a1 in circular fashion.
+
+The disjoint point i is said to be worse than the disjoint point j if and only if the string aiai+1 ... ana1 ... ai-1 is lexicografically smaller than the string ajaj+1 ... ana1 ... aj-1. String a1a2 ... an is lexicographically smaller than the string b1b2 ... bn if and only if there exists an integer i, i <= n, so that aj=bj, for each j, 1 <= j < i and ai < bi.
+
+Input
+The input consists of N cases. The first line of the input contains only positive integer N. Then follow the cases. Each case consists of exactly one line containing necklace description. Maximal length of each description is 10000 characters. Each bead is represented by a lower-case character of the English alphabet (a--z), where a < b ... z.
+
+Output
+For each case, print exactly one line containing only one integer -- number of the bead which is the first at the worst possible disjoining, i.e. such i, that the string A[i] is lexicographically smallest among all the n possible disjoinings of a necklace. If there are more than one solution, print the one with the lowest i.
+
+Example
+Input:
+4
+helloworld
+amandamanda
+dontcallmebfu
+aaabaaa
+
+Output:
+10
+11
+6
+5
+
+*/
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+
+const int MAXN = 1e6 + 5;
+
+namespace SA
+{
+#define XX w[ok]
+#define YY w[!ok]
+#define FOR(i,n) for(int i = 0; i<n;i++)
+#define FAB(i,a,b) for(int i = a; i<b;i++)
+#define FORR(i, n) for(int i = n; i >= 0; i--)
+int SA[MAXN],cnt[MAXN+1], w[3][MAXN];
+int N,i,pot,p,k,ok, range;
+
+void radix_pass(int *a,bool s)
+{
+    memset(cnt,0, range * 4);
+    FOR(i,N) cnt[ a[i] ]++;
+    FAB(i,1,range) cnt[i] += cnt[ i-1 ];
+    FORR(i,N-1) SA[ --cnt[a[i]]]= s? YY[i]:i;
+}
+void Sufix_Array(string cad)
+{
+    N = cad.size()+1, ok=0, range = 256;
+    for(i=0; i<N; i++) XX[i] = cad[i];
+    radix_pass(XX,0);
+    for(int pot=p=1; p<N; pot *=2, range=p)
+    {
+        for(p=0,i=N-pot; i<N; YY[p++]= i++) ;
+        for(i=0; i<N; i++) if (SA[i] >= pot)
+                YY[p++]= SA[i]-pot;
+        for(i=0; i<N; i++) w[2][i]= XX[YY[i]];
+        radix_pass(w[2],1);
+        ok ^= p=1, XX[SA[0]] = 0;
+        for(i=1; i<N; XX[SA[i++]]=k? p-1: p++)
+            if(k=0, YY[SA[i]] == YY[SA[i-1]])
+                if(YY[SA[i]+pot] == YY[SA[i-1]+pot])
+                    k = 1;
+    }
+}
+
+int rank[MAXN], LCP[MAXN];
+void findLCP(string cad,int N)
+{
+    int i, j, k;
+    for(i=1; i <= N; i++) rank[ SA[i] ] = i;
+    for(k=i=0; i< N; LCP[rank[i++]]=k ,k-=k>0)
+        for(j=SA[rank[i]-1]; cad[i+k]==cad[j+k]; k++);
+}
+};
+
+int main()
+{
+    ios_base::sync_with_stdio(0); cin.tie(0);
+
+   // freopen(".in", "r", stdin);
+
+    int T; cin >> T;
+
+    cik(t, 1, T, 1){
+        string S; cin >> S;
+
+        int l = S.size();
+        S += S;
+char cad = 'z'+1;
+S += cad; 
+       SA::Sufix_Array(S);
+
+        for(int i = 1; i <= S.size(); i++){
+            if(SA::SA[i] < l){
+                //cout << S.substr(SA::SA[i], l) << "\n";break;
+                cout << SA::SA[i]+1 << "\n"; break;
+            }
+        }
+    }
+
+    return 0;
+}
