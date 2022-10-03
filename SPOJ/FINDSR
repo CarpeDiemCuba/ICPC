@@ -1,0 +1,91 @@
+/*
+https://www.spoj.com/problems/FINDSR/en/
+
+FINDSR - Find String Roots
+no tags 
+
+In mathematics, the N-th root of a number M, is a number K such that KN = M , i.e. KKK ... K = M where K is multiplied N times.
+
+We can translate this into strings. In string notation, the juxtaposition is concatenation instead of multiplication. So, the N-th root of a string S is another string T such that TN = S, where T N = TTT ... T is the string T concatenated N times. For instance, if S = “abcabcabcabc”, for N = 2 the string T = “abcabc” is the N-th root of S, while for N = 4 its N-th root is T = “abc”. Note that for N = 1 any string S is the N-th root of S itself.
+
+Given a string S you have to find the maximum N such that the N-th root of S exists. In the above example the answer would be 4, because there is no N-th root of S = “abcabcabcabc” for N > 4.
+
+Input
+The input contains several test cases, each one described in a single line. The line contains a non-empty string S of at most 105 characters, entirely formed of digits and lowercase letters. The last line of the input contains a single asterisk (“*”) and should not be processed as a test case.
+
+Output
+For each test case output a single line with the greatest integer N such that there exists a string T that concatenated N times is equal to S.
+
+Example
+Input:
+abcabcabcabc
+abcdefgh012
+aaaaaaaaaa
+*
+
+Output:
+4
+1
+10
+
+*/
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+
+const int maxn = 1e6 + 5;
+
+int pi[maxn];
+string text, pat;
+
+void prekmp(){
+    int i = 1;
+    int j = 0;
+
+    int len = pat.size();
+
+    while(i < len){
+        if(pat[i] == pat[j]){
+            pi[i] = j + 1;
+            j++, i++;
+        }
+        else {
+            if(j != 0){
+                j = pi[j - 1];
+            }
+            else{
+                pi[i] = 0; i++;
+            }
+        }
+    }return;
+}
+int main()
+{
+    ios_base::sync_with_stdio(0); cin.tie(0); cout.tie(0);
+
+    //freopen(".in", "r", stdin);
+
+    while(cin >> pat){
+        if(pat == "*") break;
+
+        prekmp();
+
+//        for(int i = 0; i <= pat.size() - 1; i++){
+//            cout << pi[i] << " ";
+//        }
+
+        int sol = 1;
+
+        int k = pat.size() - pi[pat.size() - 1];
+
+        if(pat.size() % k == 0 && pat.size() > k)
+            sol = pat.size() / k;
+        cout << sol << "\n";
+
+    }
+
+    return 0;
+}
