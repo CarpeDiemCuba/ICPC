@@ -1,0 +1,220 @@
+/*
+https://onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&page=show_problem&problem=2048
+
+You may have wondered why most extraterrestrial life forms
+resemble humans, differing by superficial traits such as height,
+colour, wrinkles, ears, eyebrows and the like. A few bear no
+human resemblance; these typically have geometric or amorphous shapes like cubes, oil slicks or clouds of dust.
+The answer is given in the 146th episode of Star Trek -
+The Next Generation, titled The Chase. It turns out that in
+the vast majority of the quadrant’s life forms ended up with
+a large fragment of common DNA.
+Given the DNA sequences of several life forms represented
+as strings of letters, you are to find the longest substring that
+is shared by more than half of them.
+Input
+Standard input contains several test cases. Each test case begins with 1 ≤ n ≤ 100, the number of life
+forms. n lines follow; each contains a string of lower case letters representing the DNA sequence of a
+life form. Each DNA sequence contains at least one and not more than 1000 letters.
+A line containing ‘0’ follows the last test case.
+Output
+For each test case, output the longest string or strings shared by more than half of the life forms. If
+there are many, output all of them in alphabetical order. If there is no solution with at least one letter,
+output ‘?’. Leave an empty line between test cases.
+Sample Input
+3
+abcdefg
+bcdefgh
+cdefghi
+3
+xxx
+yyy
+zzz
+0
+Sample Output
+bcdefg
+cdefgh
+?
+*/
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+
+const int MAXN = 1e6 + 5;
+
+int P[MAXN];
+
+namespace SA
+{
+#define XX w[ok]
+#define YY w[!ok]
+#define FOR(i,n) for(int i = 0; i<n;i++)
+#define FAB(i,a,b) for(int i = a; i<b;i++)
+#define FORR(i, n) for(int i = n; i >= 0; i--)
+int SA[MAXN],cnt[MAXN+1], w[3][MAXN];
+int N,i,pot,p,k,ok, range;
+
+void radix_pass(int *a,bool s)
+{
+    memset(cnt,0, range * 4);
+    FOR(i,N) cnt[ a[i] ]++;
+    FAB(i,1,range) cnt[i] += cnt[ i-1 ];
+    FORR(i,N-1) SA[ --cnt[a[i]]]= s? YY[i]:i;
+}
+void Sufix_Array(string cad)
+{
+    N = cad.size() + 1, ok=0, range = 256;
+    for(i=0; i<N; i++) XX[i] = cad[i];
+    radix_pass(XX,0);
+    for(int pot=p=1; p<N; pot *=2, range=p)
+    {
+        for(p=0,i=N-pot; i<N; YY[p++]= i++) ;
+        for(i=0; i<N; i++) if (SA[i] >= pot)
+                YY[p++]= SA[i]-pot;
+        for(i=0; i<N; i++) w[2][i]= XX[YY[i]];
+        radix_pass(w[2],1);
+        ok ^= p=1, XX[SA[0]] = 0;
+        for(i=1; i<N; XX[SA[i++]]=k? p-1: p++)
+            if(k=0, YY[SA[i]] == YY[SA[i-1]])
+                if(YY[SA[i]+pot] == YY[SA[i-1]+pot])
+                    k = 1;
+    }
+}
+
+int rank[MAXN], LCP[MAXN];
+void findLCP(string cad,int N)
+{
+    int i, j, k;
+    for(i=1; i <= N; i++) rank[ SA[i] ] = i;
+    for(k=i=0; i< N; LCP[rank[i++]]=k ,k-=k>0)
+        for(j=SA[rank[i]-1]; cad[i+k]==cad[j+k]; k++);
+}
+};
+
+int cant, LenT ;
+const int MAXM = 105;
+bool FLAG[MAXM];
+int N;
+string T, S;
+
+bool ok(int longit){
+    for(int i = 1; i < LenT; i++){
+        if(SA::LCP[i] >= longit){
+            memset(FLAG, 0, sizeof(FLAG));
+
+            FLAG[P[SA::SA[i-1]]] = true;
+            int cant = 1;
+            int j = i, med = (N >> 1);
+            for( ; j <= LenT; ){
+                if(SA::LCP[j] >= longit){
+                    int pal = P[SA::SA[j]];
+                    if(!FLAG[pal]){
+                        cant++;
+                    }
+                    FLAG[pal] = true;
+                }
+                else break;
+                j++;
+            }
+
+            if(cant > med){
+                return true;
+            }
+            i = j - 1;
+        }
+    }return false;
+}
+void ok2(int longit){
+    for(int i = 1; i < LenT; i++){
+        if(SA::LCP[i] >= longit){
+            memset(FLAG, 0, sizeof(FLAG));
+
+            FLAG[P[SA::SA[i-1]]] = true;
+            int cant = 1;
+            int j = i, med = (N >> 1);
+            for( ; j <= LenT; ){
+                if(SA::LCP[j] >= longit){
+                    int pal = P[SA::SA[j]];
+                    if(!FLAG[pal]){
+                        cant++;
+                    }
+                    FLAG[pal] = true;
+                }
+                else break;
+                j++;
+            }
+
+            if(cant > med){
+                cout << T.substr(SA::SA[i], longit)<< "\n";
+            }
+            i = j - 1;
+        }
+    }return ;
+}
+
+
+
+int main()
+{
+
+    bool flag = false;
+    while(cin >> N){
+
+        if(!N)break;
+
+        if(flag) cout << "\n"; flag = true;
+
+        cant = N / 2;
+        T = "", S; char c = 1;
+
+        int maximo = 0;
+
+        cik(i, 1, N, 1){
+            cin >> S;
+            T += S;
+            P[T.size()]++;
+            T += c;
+            c++;
+
+            if(maximo < S.size()) maximo = S.size();
+        }
+
+        if(N == 1){
+            cout << S.substr(0, S.size() - 1) << "\n"; continue;
+        }
+
+        cik(i, 1, T.size(), 1){
+            P[i] += P[i - 1];
+        }
+
+        SA::Sufix_Array(T);
+        SA::findLCP(T, T.size());
+
+        LenT = T.size();
+        int ini = 0, fin = maximo;
+
+        int Sol = 0;
+        while(ini <= fin){
+            int mit = (ini + fin) >> 1;
+
+            if(ok(mit)){
+                Sol = mit;
+                ini = mit+1;
+            }else{
+                fin = mit-1;
+            }
+        }
+
+        if(Sol){
+            ok2(Sol);
+        }else cout << "?\n";
+
+
+        memset(P, 0, sizeof(P));
+    }
+
+    return 0;
+}
