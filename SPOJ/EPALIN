@@ -1,0 +1,114 @@
+/*
+https://www.spoj.com/problems/EPALIN/en/
+
+EPALIN - Extend to Palindrome
+no tags 
+
+Your task is, given an integer N, to make a palindrome (word that reads the same when you reverse it) of length at least N (1 <= N <= 100,000). Any palindrome will do.
+
+Easy, isn't it? That's what you thought before you passed it on to your inexperienced team-mate. When the contest is almost over, you find out that that problem still isn't solved. The problem with the code is that the strings generated are often not palindromic. There's not enough time to start again from scratch or to debug his messy code.
+
+Seeing that the situation is desperate, you decide to simply write some additional code that takes the output and adds just enough extra characters to it to make it a palindrome and hope for the best. Your solution should take as its input a string and produce the smallest palindrome that can be formed by adding zero or more characters at its end. The input string will consist of only upper and lower case letters.
+
+Example
+Input:
+aaaa
+abba
+amanaplanacanal
+xyz
+
+Output:
+aaaa
+abba
+amanaplanacanalpanama
+xyzyx
+Note:
+1. All palindromes are considered case-sensitive (i.e. 'Aa' is not a palindrome).
+2. Large I/O. Be careful in certain languages.
+
+*/
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+
+const int maxn = 1e6 + 5;
+
+int pi[maxn];
+string text, pat;
+
+void prekmp(){
+    int i = 1;
+    int j = 0;
+
+    int len = pat.size();
+
+    while(i < len){
+        if(pat[i] == pat[j]){
+            pi[i] = j + 1;
+            j++, i++;
+        }
+        else {
+            if(j != 0){
+                j = pi[j - 1];
+            }
+            else{
+                pi[i] = 0; i++;
+            }
+        }
+    }return;
+}
+
+int kmp(){
+    int Sol = 0;
+
+    int lenn = pat.size();
+    int lenm = text.size();
+
+    int i = 0, j = 0, match = 0;;
+
+    while(i < lenm){
+        if(pat[j] == text[i]){
+            j++;
+            i++;
+            Sol = j;
+        }
+        else if(j > 0){
+            j = pi[j - 1];
+        }
+        else if(i < lenm && pat[j] != text[i]){
+            if(j != 0) j = pi[j - 1];
+            else i++;
+        }
+    }
+    return Sol;
+}
+
+
+int main()
+{
+
+    int N;
+    while(cin >> text ){
+        pat = text;
+        reverse(pat.begin(), pat.end());
+        memset(pi, 0, sizeof(pi));
+        prekmp();
+
+        int Sol = kmp();
+        cout << text;
+        for(int i = Sol; i < pat.size(); i++) cout << pat[i];
+        cout << "\n";
+    }
+    return 0;
+}
+
+
+
+/*
+amanaplanacanalacanalpanama
+amanaplanacanalacanalpanama
+amanaplanacanalpanama
+*/
