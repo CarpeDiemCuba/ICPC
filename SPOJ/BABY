@@ -1,0 +1,198 @@
+/*
+https://www.spoj.com/problems/BABY/en/
+
+BABY - Baby
+#dynamic-programming #bitmasks
+
+A baby tries to solve the well-known eight-queen puzzle: the problem of placing eight chess queens on an 8×8 chessboard so that no two queens share the same row, column, or diagonal. The baby understands the concept of row and column quite well but diagonal is not very clear to her. As a result she succeeds placing eight queens on the board so that no two queens share the same row or column but there remains the possibility that some queens share the same diagonal.
+
+Given baby's queens (a solution by the baby) and a valid eight-queen solution, it is possible to move baby's queens to positions of queens in the valid solution. Assume that in a single move, a queen can be moved one unit row-wise or column-wise into an unoccupied position.
+
+Write a program to find the minimum number of moves required to move baby's queens to positions of queens in the valid solution. The program should be usable for a more general n -queen puzzle where n queens are placed on an n×n chessboard, 4 ≤ n ≤ 16 . Assume that rows and columns of the chessboard are numbered 1, 2,..., n .
+
+Input
+The input consists of multiple test cases.
+
+Each case begins with a line containing the integer n .
+
+Each of the next two lines contains a sequence of n integers. Integers in the first line represent column numbers of baby's queens appearing in rows 1, 2,..., n respectively. In the same way, the second line contains column numbers of queens in the given valid solution. A space separates two consecutive integers in the sequence.
+
+A line containing a zero '0' as the first character follows the last case.
+
+Output
+For each test case, print the minimum number of moves required.
+
+Example
+Sample Input
+4 
+1 2 3 4 
+3 1 4 2 
+4 
+3 2 4 1 
+3 1 4 2 
+5 
+5 3 1 4 2 
+5 3 1 4 2 
+5 
+1 5 2 4 3 
+3 1 4 2 5 
+0
+
+Sample Output
+6 
+2 
+0 
+8
+
+
+*/
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+#define pii pair<int, int>
+#define mp make_pair
+
+const int MAXA = 5000;
+const int MAXV = 100000;
+const int INF = 1e9 + 7;
+
+int e , u[MAXA], v[MAXA], w[MAXA], cap[MAXA], last[MAXV], next1[MAXA];
+int pre[MAXV], d[MAXV];
+bool inq[MAXV];
+queue<int> q;
+void addEdge(int a, int b, int co, int ca)
+{
+    u[e] = a;
+    v[e] = b;
+    w[e] = co;
+    cap[e] = ca;
+    next1[e] = last[a];
+    last[a] = e++;
+    u[e] = b;
+    v[e] = a;
+    w[e] = -co;
+    cap[e] = 0;
+    next1[e] = last[b];
+    last[b] = e++;
+}
+void init()
+{
+    e = 0;
+    memset(last, -1, sizeof(last));
+}
+
+bool spac(int s, int t, int cnt)
+{
+    int x,y, i;
+    memset(pre, -1, sizeof(pre));
+    memset(inq, 0, sizeof(inq));
+    for(i = 0; i <= cnt; ++i) d[i] = INF;
+
+    d[s] = 0;
+    inq[s] = true;
+    q.push(s);
+
+    while(!q.empty())
+    {
+        x = q.front();
+        q.pop();
+
+        inq[x] = false;
+        for(i = last[x]; i != -1; i = next1[i])
+        {
+            y = v[i];
+            if(cap[i] != 0 && d[y] > d[x] + w[i])
+            {
+                d[y] = d[x] + w[i];
+                pre[y] = i;
+                if(!inq[y])
+                {
+                    inq[y] = true;
+                    q.push(y);
+                }
+            }
+        }
+    }
+
+    return d[t] != INF;
+}
+int cost, flow;
+
+pii mfmc(int s, int t, int cnt)
+{
+    cost = flow = -1;
+    int i, tmp;
+    while(spac(s, t, cnt))
+    {
+        tmp = INF;
+        for(i = pre[t]; i != -1; i = pre[u[i]])
+            tmp = min(tmp, cap[i]);
+
+        for(i = pre[t]; i != -1; i = pre[u[i]])
+        {
+            cap[i] -= tmp;
+            cap[i^1] += tmp;
+
+            cost += w[i];
+        }
+        flow += tmp;
+    }
+    return mp(flow,cost);
+}
+
+const int maxn = 105;
+
+int A[maxn], B[maxn];
+int N;
+
+int calc_nod(int fil, int col){
+    return (fil-1) * N + col;
+}
+
+int dist(int f1, int c1, int f2, int c2){
+    return abs(f1 - f2) + abs(c1 - c2);
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(0); cin.tie(0);
+
+    //freopen(".in", "r", stdin);
+
+    while(cin >> N){
+        if(!N)break;
+
+        init();
+
+        cik(i, 1, N, 1) cin >> A[i];
+        cik(i, 1, N, 1) cin >> B[i];
+
+        int fuente = 0, sumidero = N * N + 1;
+
+        //uniendo fuente con aristas simples;
+
+        cik(i, 1, N, 1){
+            addEdge(fuente, calc_nod(A[i], i), 0, 1);
+        }
+
+        cik(i, 1, N, 1){
+            cik(j, 1, N, 1){
+                addEdge(calc_nod(A[i], i), calc_nod(B[j], j), dist(A[i], i,  B[j], j), 1);
+            }
+        }
+
+        cik(i, 1, N, 1){
+            addEdge(calc_nod(B[i], i), sumidero, 0, 1);
+        }
+
+        pii Sol = mfmc(fuente, sumidero, N * N + 2) ;
+
+        cout << Sol.second + 1 << "\n";
+
+    }
+
+    return 0;
+}
