@@ -1,0 +1,151 @@
+/*
+https://www.spoj.com/problems/BRCKTS/en/
+
+BRCKTS - Brackets
+#tree
+
+We will call a bracket word any word constructed out of two sorts of characters: the opening bracket "(" and the closing bracket ")". Among these words we will distinguish correct bracket expressions. These are such bracket words in which the brackets can be matched into pairs such that
+
+every pair consists of an opening bracket and a closing bracket appearing further in the bracket word
+for every pair the part of the word between the brackets of this pair has equal number of opening and closing brackets
+On a bracket word one can do the following operations:
+replacement -- changes the i-th bracket into the opposite one
+check -- if the word is a correct bracket expression
+Task
+Write a program which
+
+reads (from standard input) the bracket word and the sequence of operations performed,
+for every check operation determines if the current bracket word is a correct bracket expression,
+writes out the outcome (to standard output).
+Input
+Ten test cases (given one under another, you have to process all!). Each of the test cases is a series of lines. The first line of a test consists of a single number n (1<=n<=30000) denoting the length of the bracket word. The second line consists of n brackets, not separated by any spaces. The third line consists of a single number m -- the number of operations. Each of the following m lines carries a number k denoting the operation performed. k=0 denotes the check operation, k>0 denotes replacement of k-th bracket by the opposite.
+
+Output
+For every test case your program should print a line:
+Test i:
+where i is replaced by the number of the test and in the following lines, for every check operation in the i-th test your program should print a line with the word YES, if the current bracket word is a correct bracket expression, and a line with a word NO otherwise. (There should be as many lines as check operations in the test.)
+
+Example
+Input:
+4
+()((
+4
+4
+0
+2
+0
+[and 9 test cases more]
+Output:
+Test 1:
+YES
+NO
+[and 9 test cases more]
+
+*/
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+#define bi pair<int, int>
+#define op first
+#define closed second
+
+const int maxn = 3e5 + 5;
+
+bi ST[maxn * 4];
+
+int N, M;
+string A;
+
+void clean(){
+    cik(i, 0, maxn - 5, 1){
+        ST[i].op = 0;
+        ST[i].closed = 0;
+    } return;
+}
+
+bi operation(bi a, bi b){
+    bi sol;
+    sol.op = a.op - min(a.op, b.closed) + b.op;
+    sol.closed = b.closed - min(a.op, b.closed) + a.closed;
+    return sol;
+}
+
+void update(int nod, int ini, int fin, int pos){
+    if(pos < ini || fin < pos){
+        return;
+    }
+
+    if(ini == fin && pos == ini){
+        swap(ST[nod].op, ST[nod].closed);return;
+    }
+
+    int mit = (ini + fin) >> 1;
+
+    update(nod << 1, ini, mit, pos);
+    update((nod << 1) + 1, mit + 1, fin, pos);
+
+    ST[nod] = operation(ST[nod << 1], ST[(nod << 1) + 1]);
+    return ;
+}
+
+bool query(){
+    return ST[1].op == ST[1].closed && !ST[1].op;
+}
+
+void build(int nod, int ini, int fin){
+    if(ini == fin){
+        if(A[ini] == '('){
+            ST[nod].op = 1;
+        }else {
+            ST[nod].closed = 1;
+        }
+        return;
+    }
+
+    int mit = (ini + fin) >> 1;
+
+    build(nod << 1, ini, mit);
+    build((nod << 1) + 1, mit + 1, fin);
+
+    ST[nod] = operation(ST[nod << 1], ST[(nod << 1) + 1]);
+    return;
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(0); cin.tie(0);
+
+   // freopen(".in", "r", stdin);
+
+
+    for(int t = 1; t <= 10; t++){
+        cin >> N >> A >> M;
+
+        A = " " + A;
+
+        build(1, 1, N);
+
+        cout << "Test " << t << ":\n";
+        cik(i, 1, M, 1){
+            int a; cin >> a;
+
+            if(a) {
+                update(1, 1, N, a);
+            }
+            else {
+                if(query()){
+                    cout << "YES\n";
+                }else{
+                    cout << "NO\n";
+                }
+            }
+        }
+
+        clean();
+    }
+
+    return 0;
+}
