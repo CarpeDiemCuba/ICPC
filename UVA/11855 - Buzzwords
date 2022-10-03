@@ -1,0 +1,148 @@
+/*
+https://onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&page=show_problem&problem=2955
+
+The word “the” is the most common three-letter word. It even
+shows up inside other words, such
+as “other” and “mathematics”.
+Sometimes it hides, split between
+two words, such as “not here”.
+Have you ever wondered what the
+most common words of lengths
+other than three are?
+Your task is the following. You
+will be given a text. In this text,
+find the most common word of
+length one. If there are multiple
+such words, any one will do. Then
+count how many times this most
+common word appears in the text. If it appears more than once, output how many times it appears. Then repeat the process with words of length 2, 3, and so on, until you reach such a length that
+there is no longer any repeated word of that length in the text.
+Input
+The input consists of a sequence of lines. The last line of input is empty and should not be processed.
+Each line of input other than the last contains at least one but no more than one thousand uppercase
+letters and spaces. The spaces are irrelevant and should be ignored.
+Output
+For each line of input, output a sequence of lines, giving the number of repetitions of words of length
+1, 2, 3, and so on. When you reach a length such that there are no repeated words of that length,
+output one blank line, do not output anything further for that input line, and move on to the next line
+of input.
+Note: Remember that the last line of the sample input and of the sample output must be blank.
+Sample Input
+THE OTHER MATHEMATICS NOT HERE
+AA
+Sample Output
+5
+4
+4
+2
+2
+2
+
+*/
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+
+const int MAXN = 1e6 + 5;
+
+namespace SA
+{
+#define XX w[ok]
+#define YY w[!ok]
+#define FOR(i,n) for(int i = 0; i<n;i++)
+#define FAB(i,a,b) for(int i = a; i<b;i++)
+#define FORR(i, n) for(int i = n; i >= 0; i--)
+int SA[MAXN],cnt[MAXN+1], w[3][MAXN];
+int N,i,pot,p,k,ok, range;
+
+void radix_pass(int *a,bool s)
+{
+    memset(cnt,0, range * 4);
+    FOR(i,N) cnt[ a[i] ]++;
+    FAB(i,1,range) cnt[i] += cnt[ i-1 ];
+    FORR(i,N-1) SA[ --cnt[a[i]]]= s? YY[i]:i;
+}
+void Sufix_Array(string cad)
+{
+    N = cad.size() + 1, ok=0, range = 256;
+    for(i=0; i<N; i++) XX[i] = cad[i];
+    radix_pass(XX,0);
+    for(int pot=p=1; p<N; pot *=2, range=p)
+    {
+        for(p=0,i=N-pot; i<N; YY[p++]= i++) ;
+        for(i=0; i<N; i++) if (SA[i] >= pot)
+                YY[p++]= SA[i]-pot;
+        for(i=0; i<N; i++) w[2][i]= XX[YY[i]];
+        radix_pass(w[2],1);
+        ok ^= p=1, XX[SA[0]] = 0;
+        for(i=1; i<N; XX[SA[i++]]=k? p-1: p++)
+            if(k=0, YY[SA[i]] == YY[SA[i-1]])
+                if(YY[SA[i]+pot] == YY[SA[i-1]+pot])
+                    k = 1;
+    }
+}
+
+int rank[MAXN], LCP[MAXN];
+void findLCP(string cad ,int N)
+{
+    int i, j, k;
+    for(i=1; i <= N; i++) rank[ SA[i] ] = i;
+    for(k=i=0; i< N; LCP[rank[i++]]=k ,k-=k>0)
+        for(j=SA[rank[i]-1]; cad[i+k]==cad[j+k]; k++);
+}
+};
+
+int main()
+{
+    ios_base::sync_with_stdio(0); cin.tie(0);
+
+  //  freopen(".in", "r", stdin);
+
+    string A, S;bool flag = false;
+    while(getline(cin, A)){
+ if(flag)cout << "\n"; flag = true;
+       S = "";
+
+//        cout << A << "\n\n\n\n";
+
+        int lena = A.size(), lens;
+        for(int i = 0; i < lena ; i++){
+            if(A[i] != ' ') S += A[i];
+        }
+
+//        cout << S << "\n";
+
+        SA::Sufix_Array(S);
+
+        lens = S.size();
+        SA::findLCP(S, S.size());
+
+        for(int j = 1; ; j++){
+
+            int Sol = 0, len = 0;
+            for(int i = 2; i <= S.size() ; i++){
+                if(SA::LCP[i]){
+                    len++;
+                    SA::LCP[i] --;
+                }
+                else if(len){
+                    Sol = max(len + 1, Sol);
+                    len = 0;
+                }
+            }
+            if(len) Sol = max(Sol, len + 1);
+
+            if(Sol ) cout << Sol << "\n";
+            else {
+                break;
+            }
+        }
+    }
+
+
+
+    return 0;
+}
