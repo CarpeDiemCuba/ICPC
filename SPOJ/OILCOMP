@@ -1,0 +1,203 @@
+/*
+https://www.spoj.com/problems/OILCOMP/en/
+
+
+OILCOMP - Oil Company
+no tags 
+
+Irving & Cohen Petroleum Corporation has decided to develop a new oil field in an area. A preliminary survey has been done and they created a detailed grid map of the area which indicates the reserve of oil.
+
+They are now planning to construct mining plants on several grid blocks according this map, but they decided not to place any two plants on adjacent positions to avoid spreading of fire in case of blaze. Two blocks are considered to be adjacent when they have a common edge. You are one of the programmers working for the company and your task is to write a program which calculates the maximum amount of oil they can mine, given the map of the reserve.
+
+Input
+The first line of the input specifies N, the number of test cases. Then N test cases follow, each of which looks like the following:
+
+W H
+r1,1 r2,1 ... rW,1
+ ... 
+r1,H r2,H ... rW,H
+The first line of a test case contains two integers W and H (1 ≤ W, H ≤ 20). They specifies the dimension of the area. The next H lines, each of which contains W integers, represent the map of the area. Each integer rx,y (0 ≤ rx,y < 10000) indicates the oil reserve at the grid block (x, y).
+
+Output
+For each test case, output the case number (starting from 1) and the maximum possible amount of mining in a line. Refer to the sample output section about the format.
+
+Example
+Input:
+2
+2 2
+2 3
+3 5
+3 2
+4 1 1
+2 1 4
+
+Output:
+Case 1: 7
+Case 2: 8
+
+*/
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+#define flow_type int
+
+
+
+struct dinic
+{
+	struct edge
+	{
+		size_t src, dst, rev;
+		flow_type flow, cap;
+	};
+
+	int n;
+	vector<vector<edge> > adj;
+
+	dinic(int n) : n(n), adj(n), level(n), q(n), it(n) {}
+
+	void add_edge(size_t src, size_t dst, flow_type cap, flow_type rcap = 0)
+	{
+		adj[src].push_back({src, dst, adj[dst].size(), 0, cap});
+		if (src == dst) adj[src].back().rev++;
+		adj[dst].push_back({dst, src, adj[src].size() - 1, 0, rcap});
+	}
+
+	vector<int> level, q, it;
+
+	bool bfs(int source, int sink)
+	{
+		fill(level.begin(), level.end(), -1);
+		for (int qf = level[q[0] = sink] = 0, qb = 1; qf < qb; ++qf)
+		{
+			sink = q[qf];
+			for (edge &e : adj[sink])
+			{
+				edge &r = adj[e.dst][e.rev];
+				if (r.flow < r.cap && level[e.dst] == -1)
+					level[q[qb++] = e.dst] = 1 + level[sink];
+			}
+		}
+		return level[source] != -1;
+	}
+
+	flow_type augment(int source, int sink, flow_type flow)
+	{
+		if (source == sink) return flow;
+		for (; it[source] != adj[source].size(); ++it[source])
+		{
+			edge &e = adj[source][it[source]];
+			if (e.flow < e.cap && level[e.dst] + 1 == level[source])
+			{
+				flow_type delta = augment(e.dst, sink,
+								  min(flow, e.cap - e.flow));
+				if (delta > 0)
+				{
+					e.flow += delta;
+					adj[e.dst][e.rev].flow -= delta;
+					return delta;
+				}
+			}
+		}
+		return 0;
+	}
+
+	flow_type max_flow(int source, int sink)
+	{
+		for (int u = 0; u < n; ++u)
+			for (edge &e : adj[u]) e.flow = 0;
+		flow_type flow = 0;
+		flow_type oo = numeric_limits<flow_type>::max();
+
+		while (bfs(source, sink))
+		{
+			fill(it.begin(), it.end(), 0);
+			for (flow_type f; (f = augment(source, sink, oo)) > 0;)
+				flow += f;
+
+		} // level[u] = -1 => source side of min cut
+		return flow;
+	}
+} ;
+
+
+
+const int maxn = 25;
+
+int C[maxn][maxn];
+
+const int
+    df[] = {0, 0,  0, 1, -1},
+    dc[] = {0, 1, -1, 0,  0};
+
+bool ok(int a, int b, int N, int M){
+    return a > 0 && a <= N && b > 0 && b <= M;
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(0); cin.tie(0);
+
+   // freopen(".in", "r", stdin);
+
+    int T; cin >> T;
+
+    cik(t, 1, T, 1){
+        int N, M; cin >> M >> N;
+
+        int Tot = 0;
+        cik(i, 1, N, 1) cik(j, 1, M, 1){
+            cin >> C[i][j];
+            Tot += C[i][j];
+        }
+
+        int fuente = 0, sumidero = N * M + 1;
+
+        dinic D = dinic(N*M+2);
+
+        bool flag = false;
+        cik(i, 1, N, 1){
+            cik(j, 1+flag, M, 2){
+                int nod = M * (i-1) + j;
+                D.add_edge(fuente, nod, C[i][j]);
+            }
+            flag = !flag;
+        }
+
+        flag = true;
+        cik(i, 1, N, 1){
+            cik(j, 1+flag, M, 2){
+                int nod = M * (i-1) + j;
+                D.add_edge(nod, sumidero, C[i][j]);
+            }
+            flag = !flag;
+        }
+
+        flag = false;
+        cik(i, 1, N, 1){
+            cik(j, 1+flag, M, 2){
+                cik(k, 1, 4, 1){
+                    int mf = i + df[k];
+                    int mc = j + dc[k];
+
+                    if(ok(mf, mc, N, M)){
+                        int noda = M * (i - 1) + j;
+                        int nodb = M * (mf - 1) + mc;
+                        D.add_edge(noda, nodb, Tot);
+                    }
+                }
+            }
+            flag = !flag;
+        }
+
+        int Sol = D.max_flow(fuente, sumidero);
+
+        cout << "Case " << t << ": " << Tot - Sol << "\n";
+    }
+
+
+    return 0;
+}
