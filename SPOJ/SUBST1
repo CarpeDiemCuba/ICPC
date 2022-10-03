@@ -1,0 +1,115 @@
+/*
+https://www.spoj.com/problems/SUBST1/en/
+
+SUBST1 - New Distinct Substrings
+#suffix-array-8
+
+Given a string, we need to find the total number of its distinct substrings.
+
+Input
+T- number of test cases. T<=20; Each test case consists of one string, whose length is <= 50000
+
+Output
+For each test case output one number saying the number of distinct substrings.
+
+Example
+Input:
+2
+CCCCC
+ABABA
+
+Output:
+5
+9
+
+
+*/
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+#define ll long long
+#define ull unsigned long long
+#define bi pair<int, int>
+#define f first
+#define s second
+#define mkp make_pair
+
+const int MAXN = 2e5 + 5;
+
+string S;
+int N, gap;
+int sa[MAXN], pos[MAXN], tmp[MAXN], lcp[MAXN];
+
+void clean(){
+    memset(sa, 0, sizeof(sa));
+    memset(pos, 0, sizeof(pos));
+    memset(tmp, 0, sizeof(tmp));
+    memset(lcp, 0, sizeof(lcp));
+
+    N = gap = 0;
+    return;
+}
+
+bool sufCmp(int i, int j)
+{
+    if (pos[i] != pos[j])
+        return pos[i] < pos[j];
+    i += gap;
+    j += gap;
+    return (i < N && j < N) ? pos[i] < pos[j] : i > j;
+}
+
+void buildSA()
+{
+    N = S.size();
+    for(int i = 0; i < N; i++) sa[i] = i, pos[i] = S[i];
+    for (gap = 1;; gap *= 2)
+    {
+        sort(sa, sa + N, sufCmp);
+        for(int i = 0; i < N - 1; i++) tmp[i + 1] = tmp[i] + sufCmp(sa[i], sa[i + 1]);
+        for(int i = 0; i < N; i++) pos[sa[i]] = tmp[i];
+        if (tmp[N - 1] == N - 1) break;
+    }
+}
+
+void buildLCP()
+{
+    for (int i = 0, k = 0; i < N; ++i) if (pos[i] != N - 1)
+    {
+        for (int j = sa[pos[i] + 1]; S[i + k] == S[j + k];)
+        ++k;
+        lcp[pos[i]] = k;
+        if (k)--k;
+    }
+}
+
+
+int main()
+{
+    ios_base::sync_with_stdio(0); cin.tie(0);
+
+//    freopen(".in","r", stdin);
+
+
+    int T; cin >> T;
+
+    while(T--){
+        cin >> S;
+        buildSA();
+        buildLCP();
+
+        int Sol = S.size() * (S.size() + 1) / 2;
+        cik(i, 0, S.size() - 1, 1){
+            Sol -= lcp[i];
+        }
+
+        cout << Sol << "\n";
+
+        clean();
+    }
+
+    return 0;
+}
