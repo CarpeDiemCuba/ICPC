@@ -1,0 +1,151 @@
+/*
+https://www.spoj.com/problems/RAONE/en/
+
+RAONE - Ra-One Numbers
+#dynamic-programming
+
+In the War between good and evil . Ra-One is on the evil side and G-One on the good side.
+
+Ra-One is fond of destroying cities and its G-one's duty to protect them..
+
+ 
+
+Ra-One loves to destroy cities whose Zip Code has special properties. He says he loves to destroy cities which have Ra-One numbers as their Zip Code.
+
+Any number is Ra-one if the Difference between Sum of digits at even location and Sum of digits at odd location is One (1).. For eg... for 234563 is Ra-One number
+
+digits at odd location are 3,5,3 (unit place is location 1 )
+
+digits at even location are 2,4,6
+
+Diff = (2+4+6)-(3+5+3)=12-11 = 1.
+
+And 123456 is not Ra-One number
+
+diff = (5+3+1) - (2+4+6) = -4
+
+ 
+
+G-One knows this about Ra-one and wants to deploy his Army members in those cities. 1 army member will be deployed in each city.
+
+G-one knows the range of ZIP-Codes where Ra-One might attack & needs your help to find out how many army members he needs.
+
+Can you help Him ?
+
+Input
+First line will have only one integer 't' number of Zip-Code ranges. it is followed by t lines
+
+Each line from 2nd line contains 2 integer 'from'  and 'to'. These indicate the range of Zip codes where Ra-one might attack. ('From' and 'to' are included in the range)
+
+NOTE:'t' will be less than 100. 'from' and 'to' will be between 0 and 10^8 inclusive.
+
+Output
+A single number for each test case telling how many army members G-One needs to deploy.
+
+each number should be on separate lines
+
+Example
+Input:
+2
+1 10
+10 100
+
+Output:
+1
+9
+explanation:
+for 1st test case the only number is 10
+
+for 2nd test case numbers are 10, 21, 32, 43, 54, 65, 76, 87, 98
+*/
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define cik(i, a, b, c) for(int i =(a); i <=(b); i +=(c))
+
+const int maxn = 100;
+
+bool B[maxn][maxn][maxn];
+int dp[maxn][maxn][maxn];
+
+bool is_prime(int a){
+   return a == 1;
+}
+
+int solve_dp(int len, int sump, int sumi, int par){
+    if(len == 0){
+        return is_prime(sump-sumi);
+    }
+
+    if(B[len][sump][sumi]){
+       return dp[len][sump][sumi];
+    }
+
+    B[len][sump][sumi] = true;
+
+    for(int i = 0; i <= 9; i++){
+        int sump_temp = sump, sumi_temp = sumi;
+
+        if(par%2)sumi_temp+=i;
+        else     sump_temp+=i;
+
+        dp[len][sump][sumi] += solve_dp(len - 1, sump_temp, sumi_temp, par - 1);
+    }return dp[len][sump][sumi];
+}
+
+int solve(string a){
+    int Sol = 0;
+    int len = a.size();
+    int par = len;
+    int sump, sumi; sump = sumi = 0;
+
+    for(int i = 0; i < len; i++){
+        int var = a[i] - '0';
+        for(int j = 0; j < var; j++){
+            int sump_temp = sump, sumi_temp = sumi;
+
+            if(par%2)sumi_temp+=j;
+            else     sump_temp+=j;
+
+
+            Sol += solve_dp(len - (i + 1), sump_temp, sumi_temp, par-1);
+        }
+        if(par%2)sumi += var;
+        else     sump += var;
+        par--;
+    }
+    return Sol;
+}
+
+bool ok(string a){
+    int sump = 0, sumi = 0;
+
+    int len = a.size();
+    int par = len;
+
+    for(int i = 0; i < len; i++){
+        if(par%2) sumi += a[i] - '0';
+        else sump += a[i] - '0';
+        par--;
+    }
+    return is_prime(sump - sumi);
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(0); cin.tie(0);
+
+ //   freopen(".in", "r", stdin);
+
+    int T; cin >> T;
+    cik(t, 1, T, 1){
+        string a, b; cin >> a >> b;
+
+        cout << solve(b)  - solve(a) + ok(b) << "\n";
+    }
+
+
+    return 0;
+}
